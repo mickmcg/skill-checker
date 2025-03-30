@@ -78,18 +78,24 @@ const Home = () => {
       console.log("Calling Supabase Edge Function to generate questions");
 
       // Call the Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke("generate-quiz", {
-        body: {
+      // Directly call the Supabase Edge Function using fetch
+      const response = await fetch("https://tggxsfowwjarzuexohxj.supabase.co/functions/v1/supabase-functions-generate-quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           topic: subject,
           numberOfQuestions: numberOfQuestions,
           difficulty: difficulty,
-        },
+        }),
       });
 
-      if (error) {
-        console.error("Supabase function error:", error);
-        throw new Error(error.message || "Failed to generate questions");
+      if (!response.ok) {
+        throw new Error("Failed to generate questions");
       }
+
+      const data = await response.json();
 
       if (!data || data.length === 0) {
         throw new Error("No questions were returned");
