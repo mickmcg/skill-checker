@@ -1,0 +1,51 @@
+// Original implementation with edge function call
+  const generateQuestions = async (
+    subject: string,
+    numberOfQuestions: number = 5,
+  ) => {
+    setIsGeneratingQuestions(true);
+    setQuestionError(null);
+
+    try {
+      // Try to call the edge function first
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-quiz`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({
+              topic: subject,
+              numberOfQuestions: numberOfQuestions,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("API call failed");
+        }
+
+        const questions = await response.json();
+        if (Array.isArray(questions) && questions.length > 0) {
+          setQuizQuestions(questions);
+          return questions;
+        }
+        throw new Error("Invalid response format");
+      } catch (error) {
+        console.log("Falling back to mock data", error);
+        // Fall back to mock data if API call fails
+        const mockQuestions = getMockQuestions(subject, numberOfQuestions);
+        setQuizQuestions(mockQuestions);
+        return mockQuestions;
+      }
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      setQuestionError("Failed to generate questions. Please try again.");
+      return [];
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
