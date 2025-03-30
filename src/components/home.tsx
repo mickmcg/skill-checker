@@ -79,17 +79,20 @@ const Home = () => {
 
       // Call the Supabase Edge Function
       // Directly call the Supabase Edge Function using fetch
-      const response = await fetch("https://tggxsfowwjarzuexohxj.supabase.co/functions/v1/supabase-functions-generate-quiz", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://tggxsfowwjarzuexohxj.supabase.co/functions/v1/supabase-functions-generate-quiz",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic: subject,
+            numberOfQuestions: numberOfQuestions,
+            difficulty: difficulty,
+          }),
         },
-        body: JSON.stringify({
-          topic: subject,
-          numberOfQuestions: numberOfQuestions,
-          difficulty: difficulty,
-        }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to generate questions");
@@ -257,11 +260,61 @@ const Home = () => {
             className="container mx-auto px-4 py-8"
           >
             {isGeneratingQuestions ? (
-              <div className="flex flex-col items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-4"></div>
-                <p className="text-lg font-medium">
-                  Generating quiz questions...
+              <div className="flex flex-col items-center justify-center h-96 p-8">
+                <div className="relative mb-8">
+                  <div className="animate-spin rounded-full h-24 w-24 border-4 border-primary border-opacity-30"></div>
+                  <div
+                    className="animate-spin rounded-full h-24 w-24 border-t-4 border-primary absolute top-0 left-0"
+                    style={{ animationDuration: "1.5s" }}
+                  ></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-primary"
+                    >
+                      <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
+                      <path d="M16 8h-4v4" />
+                      <path d="m2 12 4-4" />
+                      <path d="M22 12h-4" />
+                      <path d="M12 2v4" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-primary mb-2">
+                  AI robots are preparing a quiz for you
+                </h3>
+                <p className="text-lg text-gray-600 mb-6 text-center">
+                  Creating a{" "}
+                  <span className="font-semibold">
+                    {quizSettings?.difficulty || "custom"}
+                  </span>{" "}
+                  difficulty quiz about{" "}
+                  <span className="font-semibold">
+                    {quizSettings?.subject || "your selected topic"}
+                  </span>
                 </p>
+                <div className="flex items-center justify-center space-x-2">
+                  <div
+                    className="w-3 h-3 rounded-full bg-primary animate-bounce"
+                    style={{ animationDelay: "0s" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 rounded-full bg-primary animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 rounded-full bg-primary animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
+                </div>
               </div>
             ) : questionError ? (
               <div className="flex flex-col items-center justify-center h-64 p-6 bg-red-50 rounded-lg">

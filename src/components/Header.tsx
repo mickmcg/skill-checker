@@ -18,10 +18,10 @@ const Header = ({
 
   return (
     <header className="w-full h-20 bg-background border-b border-border flex items-center justify-between px-6 shadow-sm">
-      <div className="flex items-center gap-2">
+      <Link to="/" className="flex items-center gap-2">
         <Trophy className="h-8 w-8 text-primary" />
         <h1 className="text-2xl font-bold text-foreground">Skill Checker</h1>
-      </div>
+      </Link>
 
       <nav className="flex items-center gap-4">
         <Link to="/">
