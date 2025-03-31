@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "../lib/utils"; // Import cn utility
 
 interface ProgressBarProps {
   currentQuestion: number;
@@ -19,33 +20,38 @@ const ProgressBar = ({
   const progressPercentage = ((currentQuestion - 1) / totalQuestions) * 100;
 
   // Calculate time progress percentage
-  const timeProgressPercentage = (timeRemaining / totalTime) * 100;
+  const timeProgressPercentage = totalTime > 0 ? (timeRemaining / totalTime) * 100 : 0; // Ensure totalTime is positive
 
   return (
-    <div className="w-full p-4 bg-white rounded-lg shadow-sm">
+    <div className="w-full p-4 bg-card rounded-lg shadow-sm"> {/* Replaced bg-white with bg-card */}
       <div className="flex justify-between items-center mb-2">
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-foreground"> {/* Replaced text-gray-700 */}
           Question {currentQuestion} of {totalQuestions}
         </div>
         {showTimer && (
-          <div className="text-sm font-medium text-gray-700">
+          <div className="text-sm font-medium text-foreground"> {/* Replaced text-gray-700 */}
             Time: {Math.floor(timeRemaining / 60)}:
             {(timeRemaining % 60).toString().padStart(2, "0")}
           </div>
         )}
       </div>
 
-      <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+      <div className="w-full bg-muted h-2 rounded-full overflow-hidden"> {/* Replaced bg-gray-200 */}
         <div
           className="bg-primary h-full transition-all duration-300 ease-in-out"
           style={{ width: `${progressPercentage}%` }}
         />
       </div>
 
-      {showTimer && (
-        <div className="mt-2 w-full bg-gray-200 h-1 rounded-full overflow-hidden">
+      {showTimer && totalTime > 0 && ( // Ensure totalTime is positive to avoid division by zero issues
+        <div className="mt-2 w-full bg-muted h-1 rounded-full overflow-hidden"> {/* Replaced bg-gray-200 */}
           <div
-            className={`h-full transition-all duration-300 ease-in-out ${timeRemaining < totalTime * 0.25 ? "bg-red-500" : "bg-blue-500"}`}
+            className={cn(
+              "h-full transition-all duration-300 ease-in-out",
+              timeProgressPercentage < 25 ? "bg-danger" : // Red for < 25%
+              timeProgressPercentage < 50 ? "bg-warning" : // Amber for 25% - 50%
+              "bg-success" // Green for >= 50%
+            )}
             style={{ width: `${timeProgressPercentage}%` }}
           />
         </div>

@@ -71,12 +71,12 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
   ];
 
   return (
-    <div className="w-full bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+    <div className="w-full bg-card p-4 rounded-lg shadow-sm border border-border"> {/* Replaced bg-white, border-gray-100 */}
       <div className="flex flex-col gap-4">
         {/* Search and Filter Toggle Row */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" /> {/* Use theme color */}
             <Input
               placeholder="Search quiz history..."
               value={filters.search}
@@ -98,7 +98,7 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
                 value !== sortOptions[0].value &&
                 value !== dateRanges[0].value,
             ) && (
-              <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-primary rounded-full" /> // Use theme color
             )}
           </Button>
         </div>
@@ -107,7 +107,7 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
         {isFiltersExpanded && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Subject</label>
+              <label className="text-sm font-medium text-foreground">Subject</label> {/* Use theme color */}
               <Select
                 value={filters.subject}
                 onValueChange={(value) => handleFilterChange("subject", value)}
@@ -126,7 +126,7 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Sort By</label>
+              <label className="text-sm font-medium text-foreground">Sort By</label> {/* Use theme color */}
               <Select
                 value={filters.sortBy}
                 onValueChange={(value) => handleFilterChange("sortBy", value)}
@@ -145,7 +145,7 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Date Range</label>
+              <label className="text-sm font-medium text-foreground">Date Range</label> {/* Use theme color */}
               <Select
                 value={filters.dateRange}
                 onValueChange={(value) =>

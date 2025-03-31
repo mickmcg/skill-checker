@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, Award, BarChart } from "lucide-react";
+import { cn } from "@/lib/utils"; // Import cn utility
 
 // Interface for the formatted history item data passed as props
 interface QuizHistoryItem {
@@ -46,32 +47,29 @@ const HistoryList = ({
     });
   };
 
+  // Function to determine score color class
+  const getScoreColorClass = (score: number, total: number) => {
+    if (total === 0) return "text-muted-foreground"; // Use muted for zero total
+    const percentage = (score / total) * 100;
+    // Use new success/danger classes based on 60% threshold
+    return percentage >= 60 ? "text-success" : "text-danger";
+  };
 
-  // Function to determine badge color (keep existing helper)
-  const getDifficultyBadgeVariant = (difficulty: string) => {
+  // Function to determine difficulty text color class
+  const getDifficultyTextColor = (difficulty: string) => {
     switch (difficulty) {
-      case "easy":
-        return "secondary";
-      case "medium":
-        return "default";
-      case "hard":
-        return "destructive";
-      default:
-        return "default";
+      case "easy": return "text-success";
+      case "medium": return "text-warning";
+      case "hard": return "text-danger";
+      default: return "text-muted-foreground";
     }
   };
 
-  // Function to determine score color (keep existing helper)
-  const getScoreColor = (score: number, total: number) => {
-    if (total === 0) return "text-gray-500"; // Handle division by zero
-    const percentage = (score / total) * 100;
-    if (percentage >= 80) return "text-green-500";
-    if (percentage >= 60) return "text-yellow-500";
-    return "text-red-500";
-  };
 
   return (
-    <div className="w-full bg-background p-4 space-y-4">
+    // Removed max-w-3xl and mx-auto, parent component handles width/centering
+    // Removed p-4 and space-y-4 as parent handles spacing now
+    <div className="w-full bg-background space-y-4">
       {historyItems.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
@@ -89,9 +87,16 @@ const HistoryList = ({
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-lg">{item.subject}</CardTitle>
-                <Badge variant={getDifficultyBadgeVariant(item.difficulty)}>
-                  {item.difficulty.charAt(0).toUpperCase() +
-                    item.difficulty.slice(1)}
+                {/* Apply specific classes for each difficulty */}
+                <Badge
+                  className={cn(
+                    "capitalize", // Ensure text is capitalized
+                    item.difficulty === 'easy' && "bg-green-600 text-white border-transparent", // White text on green bg
+                    item.difficulty === 'medium' && "bg-yellow-500 text-white border-transparent", // White text on yellow bg
+                    item.difficulty === 'hard' && "bg-red-600 text-white border-transparent" // White text on red bg
+                  )}
+                >
+                  {item.difficulty}
                 </Badge>
               </div>
               <CardDescription className="flex items-center gap-1">
@@ -102,10 +107,12 @@ const HistoryList = ({
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex flex-col items-center">
-                  <Award className="h-5 w-5 mb-1 text-primary" />
+                  {/* Apply score color to icon */}
+                  <Award className={`h-5 w-5 mb-1 ${getScoreColorClass(item.score, item.totalQuestions)}`} />
                   <span className="text-xs text-muted-foreground">Score</span>
+                  {/* Apply score color to text */}
                   <span
-                    className={`font-medium ${getScoreColor(item.score, item.totalQuestions)}`}
+                    className={`font-medium ${getScoreColorClass(item.score, item.totalQuestions)}`}
                   >
                     {item.score}/{item.totalQuestions}
                   </span>
@@ -116,11 +123,13 @@ const HistoryList = ({
                   <span className="font-medium">{item.timeTaken}</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <BarChart className="h-5 w-5 mb-1 text-primary" />
+                  {/* Apply score color to icon */}
+                  <BarChart className={`h-5 w-5 mb-1 ${getScoreColorClass(item.score, item.totalQuestions)}`} />
                   <span className="text-xs text-muted-foreground">
                     Performance
                   </span>
-                  <span className="font-medium">
+                  {/* Apply score color to text */}
+                  <span className={`font-medium ${getScoreColorClass(item.score, item.totalQuestions)}`}>
                     {item.totalQuestions > 0 ? Math.round((item.score / item.totalQuestions) * 100) : 0}%
                   </span>
                 </div>

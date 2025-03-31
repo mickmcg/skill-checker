@@ -7,6 +7,7 @@ import { ArrowRight, Clock, AlertCircle, Loader2, XCircle } from 'lucide-react';
 import QuestionDisplay from './QuestionDisplay';
 import AnswerOptions from './AnswerOptions';
 import ProgressBar from './ProgressBar';
+import Header from './Header'; // Import Header
 import { useQuiz } from '../context/QuizContext'; // Import the context hook
 
 // Keep the Question interface if it matches the structure from context
@@ -188,9 +189,9 @@ const QuizInterface = () => { // Removed default questions from props destructur
   // 1. Handle Loading State
   if (isGeneratingQuestions) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6"> {/* Replaced bg-gray-50 */}
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-        <p className="text-lg text-gray-600">Generating your quiz...</p>
+        <p className="text-lg text-muted-foreground">Generating your quiz...</p> {/* Replaced text-gray-600 */}
       </div>
     );
   }
@@ -198,10 +199,10 @@ const QuizInterface = () => { // Removed default questions from props destructur
   // 2. Handle Error State
   if (questionError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 p-6">
-        <XCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-lg font-medium text-red-600 mb-2">Error Generating Quiz</p>
-        <p className="text-gray-700 text-center mb-4">{questionError}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-destructive/10 p-6"> {/* Used destructive theme color */}
+        <XCircle className="h-12 w-12 text-destructive mb-4" />
+        <p className="text-lg font-medium text-destructive mb-2">Error Generating Quiz</p>
+        <p className="text-muted-foreground text-center mb-4">{questionError}</p> {/* Replaced text-gray-700 */}
         <Button onClick={() => navigate('/quiz-settings')}>Try Again</Button>
       </div>
     );
@@ -210,9 +211,9 @@ const QuizInterface = () => { // Removed default questions from props destructur
   // 3. Handle No Questions/Settings (e.g., direct navigation)
   if (!questions || questions.length === 0 || !quizSettings) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6"> {/* Replaced bg-gray-50 */}
         <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
-        <p className="text-lg text-gray-600 mb-4">No quiz loaded.</p>
+        <p className="text-lg text-muted-foreground mb-4">No quiz loaded.</p> {/* Replaced text-gray-600 */}
         <Button onClick={() => navigate('/')}>Go Home</Button>
       </div>
     );
@@ -223,19 +224,19 @@ const QuizInterface = () => { // Removed default questions from props destructur
 
   // This completion logic inside render might be redundant if handleQuizComplete navigates
   // Keeping it temporarily as a fallback display before navigation occurs.
-  if (quizCompleted) {
+   if (quizCompleted) {
      return (
-       <div className="flex flex-col items-center justify-center h-full w-full bg-gray-50 p-6">
-         <Card className="w-full max-w-3xl bg-white shadow-md">
+       <div className="flex flex-col items-center justify-center h-full w-full bg-background p-6"> {/* Replaced bg-gray-50 */}
+         <Card className="w-full max-w-7xl bg-card shadow-md"> {/* Changed max-w-3xl to max-w-7xl */}
            <CardContent className="p-8">
              <div className="text-center">
-               <h2 className="text-2xl font-bold text-gray-800 mb-4">
+               <h2 className="text-2xl font-bold text-foreground mb-4"> {/* Replaced text-gray-800 */}
                  Quiz Completed!
                </h2>
-               <p className="text-lg text-gray-600 mb-6">
+               <p className="text-lg text-muted-foreground mb-6"> {/* Replaced text-gray-600 */}
                  Your score: {score} out of {questions.length}
                </p>
-               <p className="text-md text-gray-500 mb-8">
+               <p className="text-md text-muted-foreground mb-8"> {/* Replaced text-gray-500 */}
                  Time spent: {Math.floor(timeSpent / 60)}:
                  {(timeSpent % 60).toString().padStart(2, "0")}
                </p>
@@ -259,9 +260,9 @@ const QuizInterface = () => { // Removed default questions from props destructur
      // This case should ideally not be reached if questions array is validated
      console.error("Error: currentQuestion is undefined at index", currentQuestionIndex);
      return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
-            <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-            <p className="text-lg text-red-600">An error occurred loading the question.</p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6"> {/* Replaced bg-gray-50 */}
+            <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+            <p className="text-lg text-destructive">An error occurred loading the question.</p>
             <Button onClick={() => navigate('/')}>Go Home</Button>
         </div>
      );
@@ -269,10 +270,11 @@ const QuizInterface = () => { // Removed default questions from props destructur
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 p-4 md:p-6">
-      {/* Consider adding Header here if needed */}
-      {/* <Header /> */}
-      <div className="w-full max-w-4xl mx-auto space-y-6">
+    // Applied standard wrapper: p-4 space-y-4
+    <div className="flex flex-col min-h-screen bg-background p-4 space-y-4"> {/* Replaced bg-gray-50 */}
+      <Header /> {/* Added Header */}
+      {/* Changed max-w-3xl to max-w-7xl for consistency */}
+      <div className="w-full max-w-7xl mx-auto space-y-6">
         <ProgressBar
           currentQuestion={currentQuestionIndex + 1}
           totalQuestions={questions.length}

@@ -7,6 +7,7 @@ import { Card } from './ui/card';
 import { Separator } from './ui/separator';
 import { Share2, Download, FileSearch, LogIn, AlertCircle } from 'lucide-react'; // Added AlertCircle
 import { Button } from './ui/button';
+import Header from './Header'; // Import Header
 import { useAuth } from '../context/AuthContext';
 import { useQuiz } from '../context/QuizContext'; // Import useQuiz
 
@@ -95,25 +96,29 @@ const ResultsSummary = () => {
   // Render loading or error state if data is missing initially
    if (quizScore === null || totalQuestions === null || timeSpent === null || !quizSettings) {
      return (
-       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6"> {/* Replaced bg-gray-50 */}
          <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
-         <p className="text-lg text-gray-600 mb-4">Loading results or no results found.</p>
+         <p className="text-lg text-muted-foreground mb-4">Loading results or no results found.</p> {/* Replaced text-gray-600 */}
          <Button onClick={() => navigate('/')}>Go Home</Button>
        </div>
      );
    }
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-8 bg-gray-50 min-h-screen">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Results</h1>
-        <p className="text-gray-600">
+    // Applied standard wrapper: p-4 space-y-4
+    <div className="bg-background min-h-screen p-4 space-y-4"> {/* Replaced bg-gray-50 */}
+      <Header /> {/* Added Header */}
+      {/* Changed max-w-3xl to max-w-7xl for consistency */}
+      <div className="w-full max-w-7xl mx-auto space-y-6">
+        <div className="text-center"> {/* Removed mb-8, handled by parent space-y */}
+          <h1 className="text-3xl font-bold text-foreground mb-2">Quiz Results</h1> {/* Replaced text-gray-900 */}
+          <p className="text-muted-foreground"> {/* Replaced text-gray-600 */}
           Completed on {currentDate} • {subject}
         </p>
         {!user && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md inline-flex items-center gap-2">
-            <LogIn className="h-4 w-4 text-blue-500" />
-            <span className="text-sm text-blue-700">
+          <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-md inline-flex items-center gap-2"> {/* Replaced blue colors */}
+            <LogIn className="h-4 w-4 text-primary" /> {/* Use primary color */}
+            <span className="text-sm text-primary"> {/* Use primary color */}
               Log in to save your results and track your progress
             </span>
             <Button
@@ -151,9 +156,10 @@ const ResultsSummary = () => {
       </div>
 
       {/* Score and Performance Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* Removed mb-8, handled by parent space-y */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <Card className="bg-white shadow-sm overflow-hidden">
+          <Card className="bg-card shadow-sm overflow-hidden"> {/* Replaced bg-white */}
             <div className="p-1 bg-primary/10">
               <h2 className="text-center text-lg font-semibold text-primary">
                 Score Summary
@@ -172,7 +178,7 @@ const ResultsSummary = () => {
         </div>
 
         <div className="lg:col-span-2">
-          <Card className="bg-white shadow-sm overflow-hidden">
+          <Card className="bg-card shadow-sm overflow-hidden"> {/* Replaced bg-white */}
             <div className="p-1 bg-primary/10">
               <h2 className="text-center text-lg font-semibold text-primary">
                 Performance Analysis
@@ -193,11 +199,13 @@ const ResultsSummary = () => {
         </div>
       </div>
 
-      <Separator className="my-8" />
+      {/* Removed my-8, handled by parent space-y */}
+      <Separator />
 
       {/* Next Steps */}
-      <div className="mb-8">
-        <Card className="bg-white shadow-sm overflow-hidden">
+      {/* Removed mb-8, handled by parent space-y */}
+      <div>
+        <Card className="bg-card shadow-sm overflow-hidden"> {/* Replaced bg-white */}
           <div className="p-1 bg-primary/10">
             <h2 className="text-center text-lg font-semibold text-primary">
               Next Steps
@@ -214,19 +222,9 @@ const ResultsSummary = () => {
           </div>
         </Card>
       </div>
-
-      {/* Footer Text */}
-      <div className="text-center text-sm text-gray-500 mt-8">
-        <p>
-          Thank you for using Skill Checker!{' '}
-          {/* TODO: Add logic to save results to history via Supabase */}
-          {user ? 'Your results might be saved to your history.' : ''}
-        </p>
-        <p className="mt-1">
-          Continue practicing to improve your skills in {subject}.
-        </p>
-      </div>
-    </div>
+      {/* Removed footer text for consistency */}
+      </div> {/* Close max-w-3xl wrapper */}
+    </div> // Close top-level wrapper
   );
 };
 

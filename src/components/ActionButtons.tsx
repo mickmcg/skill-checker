@@ -35,8 +35,8 @@ const ActionButtons = ({
   };
 
   return (
-    <div className="w-full bg-white p-6 rounded-lg shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4">
+    <div className="w-full bg-card p-6 rounded-lg shadow-sm space-y-4"> {/* Replaced bg-white with bg-card */}
+      <h3 className="text-lg font-medium mb-4 text-foreground"> {/* Added text-foreground */}
         What would you like to do next?
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -67,13 +67,14 @@ const ActionButtons = ({
           View History
         </Button>
 
+        {/* Assuming the second "View History" button was intended to be "Return Home" */}
         <Button
-          onClick={handleViewHistory} // Changed handler
+          onClick={handleReturnHome} // Changed handler to onReturnHome
           className="flex items-center justify-center gap-2"
-          variant="secondary" // Changed variant
+          variant="secondary"
         >
-          <FileSearch className="h-4 w-4" /> {/* Changed icon */}
-          View Answers {/* Changed text */}
+          <Home className="h-4 w-4" /> {/* Changed icon to Home */}
+          Return Home {/* Changed text */}
         </Button>
       </div>
     </div>

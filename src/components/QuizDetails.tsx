@@ -113,7 +113,7 @@ const QuizDetails: React.FC = () => {
 
   if (isLoading) {
     return (
-       <div className="flex flex-col min-h-screen bg-gray-50">
+       <div className="flex flex-col min-h-screen bg-background"> {/* Changed bg-gray-50 to bg-background */}
          <Header />
          <main className="flex-grow p-6 flex items-center justify-center">
            <Loader2 className="h-10 w-10 text-primary animate-spin" />
@@ -124,7 +124,7 @@ const QuizDetails: React.FC = () => {
 
   if (fetchError) {
     return (
-       <div className="flex flex-col min-h-screen bg-gray-50">
+       <div className="flex flex-col min-h-screen bg-background"> {/* Changed bg-gray-50 to bg-background */}
          <Header />
          <main className="flex-grow p-6 flex flex-col items-center justify-center">
            <AlertCircle className="h-10 w-10 text-red-500 mb-4" />
@@ -136,9 +136,9 @@ const QuizDetails: React.FC = () => {
     );
   }
 
-  if (!quizData) {
+   if (!quizData) {
      return (
-       <div className="flex flex-col min-h-screen bg-gray-50">
+       <div className="flex flex-col min-h-screen bg-background"> {/* Changed bg-gray-50 to bg-background */}
          <Header />
          <main className="flex-grow p-6 flex items-center justify-center">
            <p>Quiz data not found.</p>
@@ -163,10 +163,10 @@ const QuizDetails: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-background"> {/* Changed bg-gray-50 to bg-background */}
       <Header />
       <main className="flex-grow p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto"> {/* Changed max-w-4xl to max-w-7xl */}
           <div className="flex items-center mb-6">
             <Button variant="ghost" onClick={() => navigate("/history")} className="mr-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -302,24 +302,22 @@ const renderQuestions = (questions: StoredQuestion[]) => {
                   const correctAnswer = question.correctAnswer ?? null;
                   const isUserAnswer = userAnswer !== null && option === userAnswer;
                   const isCorrectAnswer = correctAnswer !== null && option === correctAnswer;
-
-                  let bgColor = "";
-                  if (isCorrectAnswer) {
-                      bgColor = "bg-green-50 border-green-200";
-                  }
-                  if (isUserAnswer && !isCorrectAnswer) {
-                      bgColor = "bg-red-50 border-red-200";
-                  }
+                  // Removed bgColor variable declaration
 
                   return (
                     <div
                       key={optIndex}
-                      className={`p-3 border rounded-md flex items-center ${bgColor}`}
+                      // Use cn for conditional theme-aware styling
+                      className={cn(
+                        "p-3 border rounded-md flex items-center", // Base styles
+                        isCorrectAnswer && "bg-success/10 border-success/30", // Correct answer highlight
+                        isUserAnswer && !isCorrectAnswer && "bg-destructive/10 border-destructive/30" // Incorrect user answer highlight
+                      )}
                     >
                       <div className="w-6 h-6 rounded-full border flex items-center justify-center mr-3">
                         {String.fromCharCode(65 + optIndex)}
                       </div>
-                      <span className="flex-1">{option}</span>
+                      <span className="flex-1 text-foreground">{option}</span> {/* Added text-foreground */}
                       {isUserAnswer && (
                         <span className="ml-auto">
                           {isCorrect ? (
@@ -335,8 +333,9 @@ const renderQuestions = (questions: StoredQuestion[]) => {
               </div>
 
               {!isCorrect && question.correctAnswer && (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
-                  <p className="text-sm font-medium text-green-800 flex items-center">
+                // Use theme-aware success colors
+                <div className="mt-4 p-3 bg-success/10 border border-success/30 rounded-md">
+                  <p className="text-sm font-medium text-success flex items-center">
                     <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                     Correct Answer: {question.correctAnswer}
                   </p>

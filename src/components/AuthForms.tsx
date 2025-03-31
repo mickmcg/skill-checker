@@ -50,7 +50,7 @@ const AuthForms = () => { // Remove onSuccess prop
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-7xl mx-auto"> {/* Changed max-w-md to max-w-7xl */}
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center">
           {activeTab === "login" ? "Welcome Back" : "Create Account"}

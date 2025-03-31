@@ -240,10 +240,10 @@ const HistorySection = () => { // Removed props
   // Loading State
   if (isLoading && !fetchError) { // Only show loading if no error
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="flex flex-col min-h-screen bg-background"> {/* Replaced bg-gray-50 */}
         <Header />
         <main className="flex-grow p-6 flex items-center justify-center">
-          <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center min-h-[400px]">
+          <div className="w-full max-w-5xl mx-auto bg-card rounded-lg shadow-sm p-6 flex flex-col items-center justify-center min-h-[400px]"> {/* Replaced bg-white */}
             <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
             <p className="text-lg text-muted-foreground">
               Loading your quiz history...
@@ -261,12 +261,12 @@ const HistorySection = () => { // Removed props
   // Fetch Error State
   if (fetchError && !isLoading) { // Show error only if not loading
      return (
-       <div className="flex flex-col min-h-screen bg-gray-50">
+       <div className="flex flex-col min-h-screen bg-background"> {/* Replaced bg-gray-50 */}
          <Header />
          <main className="flex-grow p-6 flex items-center justify-center">
-           <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center min-h-[400px]">
-             <AlertCircle className="h-10 w-10 text-red-500 mb-4" />
-             <p className="text-lg text-red-600 mb-2">Error Loading History</p>
+           <div className="w-full max-w-5xl mx-auto bg-card rounded-lg shadow-sm p-6 flex flex-col items-center justify-center min-h-[400px]"> {/* Replaced bg-white */}
+             <AlertCircle className="h-10 w-10 text-destructive mb-4" /> {/* Use theme color */}
+             <p className="text-lg text-destructive mb-2">Error Loading History</p> {/* Use theme color */}
              <p className="text-muted-foreground text-center mb-4">{fetchError}</p>
              {/* Provide a way to retry or go home */}
              <Button onClick={() => window.location.reload()} className="mr-2">Try Again</Button>
@@ -279,10 +279,13 @@ const HistorySection = () => { // Removed props
 
   // --- Main Content Render ---
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50"> {/* Add flex container */}
-      <Header /> {/* Add Header component */}
-      <main className="flex-grow p-6"> {/* Add main content area */}
-        <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 space-y-6">
+    // Added wrapper div with padding and spacing
+    <div className="p-4 space-y-4 flex flex-col min-h-screen bg-background"> {/* Replaced bg-gray-50 */}
+      <Header />
+      {/* Removed padding from main, handled by wrapper */}
+      <main className="flex-grow">
+        {/* Changed max-w-3xl to max-w-7xl for wider content */}
+        <div className="w-full max-w-7xl mx-auto bg-card rounded-lg shadow-sm p-6 space-y-6"> {/* Replaced bg-white */}
           {/* Header within the card */}
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -294,7 +297,7 @@ const HistorySection = () => { // Removed props
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-2xl font-bold">Quiz History</h1>
+              <h1 className="text-2xl font-bold text-foreground">Quiz History</h1> {/* Use theme color */}
             </div>
           </div>
 
@@ -308,7 +311,7 @@ const HistorySection = () => { // Removed props
              </div>
           ) : localHistoryItems.length === 0 ? (
             // Empty State (logged in, no history)
-            <div className="text-center py-16 border border-dashed rounded-lg">
+            <div className="text-center py-16 border border-dashed border-border rounded-lg"> {/* Use theme border */}
               <p className="text-lg text-muted-foreground mb-4">
                 You haven't taken any quizzes yet
               </p>
@@ -321,25 +324,25 @@ const HistorySection = () => { // Removed props
             <>
               {/* Summary Stats */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="bg-muted p-4 rounded-lg flex flex-col items-center justify-center"> {/* Replaced bg-slate-50 */}
                   <History className="h-6 w-6 text-primary mb-2" />
                   <p className="text-sm text-muted-foreground">Total Quizzes</p>
-                  <p className="text-2xl font-bold">{totalQuizzes}</p>
+                  <p className="text-2xl font-bold text-foreground">{totalQuizzes}</p> {/* Use theme color */}
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="bg-muted p-4 rounded-lg flex flex-col items-center justify-center"> {/* Replaced bg-slate-50 */}
                   <BarChart3 className="h-6 w-6 text-primary mb-2" />
                   <p className="text-sm text-muted-foreground">Average Score</p>
-                  <p className="text-2xl font-bold">{averageScore}%</p>
+                  <p className="text-2xl font-bold text-foreground">{averageScore}%</p> {/* Use theme color */}
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="bg-muted p-4 rounded-lg flex flex-col items-center justify-center"> {/* Replaced bg-slate-50 */}
                   <Clock className="h-6 w-6 text-primary mb-2" />
                   <p className="text-sm text-muted-foreground">Average Time</p>
-                  <p className="text-2xl font-bold">{averageTime}</p>
+                  <p className="text-2xl font-bold text-foreground">{averageTime}</p> {/* Use theme color */}
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="bg-muted p-4 rounded-lg flex flex-col items-center justify-center"> {/* Replaced bg-slate-50 */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -357,7 +360,7 @@ const HistorySection = () => { // Removed props
                     <path d="M12 17h.01" />
                   </svg>
                   <p className="text-sm text-muted-foreground">Total Questions</p>
-                  <p className="text-2xl font-bold">{totalQuestions}</p>
+                  <p className="text-2xl font-bold text-foreground">{totalQuestions}</p> {/* Use theme color */}
                 </div>
               </div>
 
@@ -406,7 +409,7 @@ const HistorySection = () => { // Removed props
               </Tabs>
 
               {filteredHistoryItems.length === 0 && (
-                <div className="text-center py-8 border border-dashed rounded-lg">
+                <div className="text-center py-8 border border-dashed border-border rounded-lg"> {/* Use theme border */}
                   <p className="text-muted-foreground">
                     No quiz history matches your filters.
                   </p>

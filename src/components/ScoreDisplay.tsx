@@ -1,5 +1,6 @@
 import React from "react";
 import { Trophy, Award, Star } from "lucide-react";
+import { Badge } from "./ui/badge"; // Import Badge component
 
 interface ScoreDisplayProps {
   score: number;
@@ -14,32 +15,36 @@ const ScoreDisplay = ({
   timeTaken = 120,
   subject = "JavaScript",
 }: ScoreDisplayProps) => {
-  const percentage = Math.round((score / totalQuestions) * 100);
+  // Handle division by zero and calculate percentage
+  const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+  // Determine color based on score percentage (>= 60% is success)
+  const scoreColorClass = percentage >= 60 ? "text-success" : "text-danger";
 
   // Determine badge based on score percentage
   const getBadge = () => {
     if (percentage >= 90)
       return {
-        icon: <Trophy className="h-6 w-6 text-yellow-500" />,
+        icon: <Trophy className="h-4 w-4 mr-1 text-yellow-500" />, // Adjusted size and margin
         text: "Expert",
-        color: "bg-yellow-100 text-yellow-800 border-yellow-300",
+        variant: "default" as const, // Use default badge variant
       };
     if (percentage >= 70)
       return {
-        icon: <Award className="h-6 w-6 text-blue-500" />,
+        icon: <Award className="h-4 w-4 mr-1 text-blue-500" />, // Adjusted size and margin
         text: "Proficient",
-        color: "bg-blue-100 text-blue-800 border-blue-300",
+        variant: "default" as const,
       };
     if (percentage >= 50)
       return {
-        icon: <Star className="h-6 w-6 text-green-500" />,
+        icon: <Star className="h-4 w-4 mr-1 text-green-500" />, // Adjusted size and margin
         text: "Intermediate",
-        color: "bg-green-100 text-green-800 border-green-300",
+        variant: "default" as const,
       };
     return {
-      icon: <Star className="h-6 w-6 text-gray-500" />,
+      icon: <Star className="h-4 w-4 mr-1 text-muted-foreground" />, // Adjusted size and margin, use theme color
       text: "Beginner",
-      color: "bg-gray-100 text-gray-800 border-gray-300",
+      variant: "secondary" as const, // Use secondary variant for beginner
     };
   };
 
@@ -53,17 +58,18 @@ const ScoreDisplay = ({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-md bg-white border border-gray-200">
+    <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-md bg-card border border-border"> {/* Replaced bg-white, border-gray-200 */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Score</h2>
-        <p className="text-gray-600 text-sm">{subject} Quiz Results</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Your Score</h2> {/* Replaced text-gray-800 */}
+        <p className="text-muted-foreground text-sm">{subject} Quiz Results</p> {/* Replaced text-gray-600 */}
       </div>
 
-      <div className="flex justify-center items-center mb-6">
-        <div className="relative w-36 h-36 flex items-center justify-center">
+      <div className="flex flex-col items-center mb-6"> {/* Changed to flex-col for badge placement */}
+        <div className="relative w-36 h-36 flex items-center justify-center mb-4"> {/* Added margin-bottom */}
           <svg className="w-full h-full" viewBox="0 0 100 100">
+            {/* Use theme-aware border color for the background circle */}
             <circle
-              className="text-gray-200"
+              className="text-border"
               strokeWidth="8"
               stroke="currentColor"
               fill="transparent"
@@ -72,29 +78,40 @@ const ScoreDisplay = ({
               cy="50"
             />
             <circle
-              className="text-primary"
+              className={scoreColorClass} // Apply dynamic color class here
               strokeWidth="8"
-              strokeDasharray={`${percentage * 2.51} 251.2`}
+              strokeDasharray={`${percentage * 2.51} 251.2`} // 2 * PI * R (40) = 251.2
               strokeLinecap="round"
               stroke="currentColor"
               fill="transparent"
               r="40"
               cx="50"
               cy="50"
+              transform="rotate(-90 50 50)" // Start circle from the top
             />
           </svg>
           <div className="absolute flex flex-col items-center justify-center">
-            <span className="text-4xl font-bold text-gray-800">
+            <span className={`text-4xl font-bold ${scoreColorClass}`}> {/* Apply color class */}
               {percentage}%
             </span>
-            <span className="text-sm text-gray-600">
+            <span className={`text-sm ${scoreColorClass}`}> {/* Apply color class */}
               {score}/{totalQuestions}
             </span>
           </div>
         </div>
+        {/* Display Badge */}
+        <Badge variant={badge.variant} className="flex items-center">
+          {badge.icon}
+          {badge.text}
+        </Badge>
       </div>
 
-
+      {/* Optional: Display time taken if provided */}
+      {timeTaken !== undefined && (
+        <div className="text-center text-sm text-muted-foreground">
+          Time Taken: {formatTime(timeTaken)}
+        </div>
+      )}
     </div>
   );
 };

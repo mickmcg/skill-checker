@@ -72,21 +72,26 @@ const Home = () => {
 
   // The Home component now only renders the subject selection part
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header might be part of a main layout in App.tsx */}
-      <Header activePage="home" /> {/* Remove onViewHistory prop */}
-      <main className="flex-1">
+    // Applied standard wrapper: p-4 space-y-4
+    <div className="min-h-screen bg-background p-4 space-y-4"> {/* Replaced bg-gray-50 with bg-background */}
+      <Header activePage="home" />
+      {/* Removed flex-1 from main, space-y handles spacing */}
+      <main>
+        {/* Removed container, mx-auto, px-4, py-8 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container mx-auto px-4 py-8"
+          className=""
         >
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          {/* Changed to max-w-7xl for consistency */}
+          <div className="max-w-7xl mx-auto text-center mb-12">
+            {/* Use theme-aware text color */}
+            <h1 className="text-4xl font-bold text-foreground mb-4">
               Welcome to Skill Checker
             </h1>
-            <p className="text-xl text-gray-600">
+            {/* Use theme-aware text color */}
+            <p className="text-xl text-muted-foreground">
               Test your knowledge with AI-generated quizzes on any subject.
               Select a topic below to get started.
             </p>
@@ -99,15 +104,7 @@ const Home = () => {
           <SubjectSelector onSubjectSelect={handleSubjectSelect} />
         </motion.div>
       </main>
-      {/* Footer might be part of a main layout in App.tsx */}
-      <footer className="bg-white border-t border-gray-200 py-4">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>
-            © 2025 Skill Checker - Test your knowledge with AI-generated
-            quizzes
-          </p>
-        </div>
-      </footer>
+      {/* Removed footer for consistency with other screens */}
     </div>
   );
 };

@@ -31,47 +31,54 @@ const PerformanceMetrics = ({
     { subject: "Science", score: 55 },
   ],
 }: PerformanceMetricsProps) => {
-  const correctPercentage = Math.round((correctAnswers / totalQuestions) * 100);
+  // Handle division by zero for percentage calculation
+  const correctPercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+  // Determine color based on percentage
+  const scoreColorClass = correctPercentage >= 60 ? "text-success" : "text-danger";
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 bg-white p-6 rounded-lg shadow-sm">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+    <div className="w-full max-w-4xl mx-auto space-y-6 bg-card p-6 rounded-lg shadow-sm"> {/* Replaced bg-white with bg-card */}
+      <h2 className="text-2xl font-bold text-center text-foreground mb-6"> {/* Replaced text-gray-800 with text-foreground */}
         Performance Analysis
       </h2>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"> {/* Changed md:grid-cols-4 to md:grid-cols-2 */}
-        <Card className="bg-white">
+        <Card className="bg-card"> {/* Replaced bg-white with bg-card */}
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-blue-500" />
               <div>
-                <p className="text-sm text-gray-500">Time Spent</p>
+                <p className="text-sm text-muted-foreground">Time Spent</p> {/* Replaced text-gray-500 with text-muted-foreground */}
                 <p className="text-xl font-bold">{timeSpent}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-card"> {/* Replaced bg-white with bg-card */}
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <Target className="h-5 w-5 text-green-500" />
+              {/* Apply color to icon */}
+              <Target className={`h-5 w-5 ${scoreColorClass}`} />
               <div>
-                <p className="text-sm text-gray-500">Accuracy</p>
-                <p className="text-xl font-bold">{correctPercentage}%</p>
+                <p className="text-sm text-muted-foreground">Accuracy</p> {/* Replaced text-gray-500 with text-muted-foreground */}
+                {/* Apply color to value */}
+                <p className={`text-xl font-bold ${scoreColorClass}`}>{correctPercentage}%</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-card"> {/* Replaced bg-white with bg-card */}
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <Brain className="h-5 w-5 text-purple-500" />
+              {/* Apply color to icon */}
+              <Brain className={`h-5 w-5 ${scoreColorClass}`} />
               <div>
-                <p className="text-sm text-gray-500">Score</p>
-                <p className="text-xl font-bold">
+                <p className="text-sm text-muted-foreground">Score</p> {/* Replaced text-gray-500 with text-muted-foreground */}
+                {/* Apply color to value */}
+                <p className={`text-xl font-bold ${scoreColorClass}`}>
                   {correctAnswers}/{totalQuestions}
                 </p>
               </div>
@@ -79,12 +86,12 @@ const PerformanceMetrics = ({
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-card"> {/* Replaced bg-white with bg-card */}
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-orange-500" />
               <div>
-                <p className="text-sm text-gray-500">Avg. Response Time</p>
+                <p className="text-sm text-muted-foreground">Avg. Response Time</p> {/* Replaced text-gray-500 with text-muted-foreground */}
                 <p className="text-xl font-bold">{averageResponseTime}</p>
               </div>
             </div>

@@ -85,10 +85,10 @@ const SubjectSelector = ({
   );
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm">
+    <div className="w-full max-w-7xl mx-auto bg-card p-6 rounded-xl shadow-sm"> {/* Changed max-w-4xl to max-w-7xl */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Select a Subject</h2>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground"> {/* Replaced text-gray-600 with text-muted-foreground */}
           Choose a subject area to test your knowledge
         </p>
       </div>
