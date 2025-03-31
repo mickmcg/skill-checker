@@ -1,32 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Import useEffect
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { ArrowLeft, BarChart3, Clock, History, Loader2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Clock, History, Loader2, AlertCircle } from "lucide-react"; // Added AlertCircle
 import HistoryFilters from "./HistoryFilters";
 import HistoryList from "./HistoryList";
+import Header from "./Header"; // Import Header component
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase"; // Import supabase client
 
-interface HistorySectionProps {
-  onNavigate?: (destination: string) => void;
-  onSelectQuiz?: (quizId: string) => void;
-  historyItems?: Array<{
-    id: string;
-    date: string;
-    subject: string;
-    score: number;
-    totalQuestions: number;
-    timeTaken: string;
-    difficulty: "easy" | "medium" | "hard";
-  }>;
-  isLoading?: boolean;
+// Define the structure of history items fetched from DB (matching schema)
+interface HistoryItem {
+  id: string;
+  date: string; // Correct: timestamptz column
+  subject: string;
+  score: number;
+  total_questions: number;
+  time_taken: number; // Correct: int4 column for seconds
+  difficulty: "easy" | "medium" | "hard";
+  user_id: string;
 }
 
-const HistorySection = ({
-  onNavigate = () => {},
-  onSelectQuiz = () => {},
-  historyItems = [],
-  isLoading = false,
-}: HistorySectionProps) => {
+// Define the structure expected by the HistoryList component
+interface FormattedHistoryItem {
+  id: string;
+  date: string; // Formatted date string
+  subject: string;
+  score: number;
+  totalQuestions: number; // Camel case
+  timeTaken: string; // Formatted MM:SS string
+  difficulty: "easy" | "medium" | "hard";
+}
+
+// Remove props interface, component will fetch its own data
+// interface HistorySectionProps { ... }
+
+const HistorySection = () => { // Removed props
+  const navigate = useNavigate(); // Use navigate hook
+  const { user } = useAuth();
+
+  // Internal state for history data, loading, and errors
+  const [localHistoryItems, setLocalHistoryItems] = useState<FormattedHistoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Start loading initially
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState("all");
   const [filters, setFilters] = useState({
     search: "",
@@ -35,11 +52,63 @@ const HistorySection = ({
     dateRange: "all-time",
   });
 
-  const { user } = useAuth();
+  // --- Data Fetching Effect ---
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!user) {
+        setIsLoading(false); // Not logged in, stop loading
+        setLocalHistoryItems([]); // Clear any previous items
+        return;
+      }
 
+      setIsLoading(true);
+      setFetchError(null);
+
+      try {
+        // Correct Supabase query chaining - await the whole chain
+        const query = supabase
+          .from("quiz_history")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("date", { ascending: false }); // Correct column name: 'date'
+        const { data, error } = await query; // Await the final query object
+
+        if (error) {
+          throw error;
+        }
+
+        // Format data for display using correct field names from HistoryItem
+        const formattedData: FormattedHistoryItem[] = data.map((item: HistoryItem) => ({
+          id: item.id,
+          date: new Date(item.date).toLocaleDateString(), // Use item.date
+          subject: item.subject,
+          score: item.score,
+          totalQuestions: item.total_questions,
+          // Format time_taken (seconds) into MM:SS - Use item.time_taken
+          timeTaken: `${Math.floor(item.time_taken / 60).toString().padStart(2, '0')}:${(item.time_taken % 60).toString().padStart(2, '0')}`,
+          difficulty: item.difficulty,
+        }));
+
+        setLocalHistoryItems(formattedData);
+
+      } catch (err) {
+        console.error("Error fetching quiz history:", err);
+        const message = err instanceof Error ? err.message : "An unknown error occurred";
+        setFetchError(`Failed to load history: ${message}`);
+        setLocalHistoryItems([]); // Clear items on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [user]); // Re-run when user changes
+
+  // --- Filtering Logic ---
   // Filter history items based on active tab and filters
   const getFilteredHistoryItems = () => {
-    let filtered = [...historyItems];
+    // Use localHistoryItems state instead of prop
+    let filtered = [...localHistoryItems];
 
     // Filter by tab
     if (activeTab !== "all") {
@@ -65,9 +134,14 @@ const HistorySection = ({
     filtered.sort((a, b) => {
       switch (filters.sortBy) {
         case "newest":
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+          // Ensure dates are valid before comparing
+          const dateB = new Date(b.date).getTime();
+          const dateA = new Date(a.date).getTime();
+          return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
         case "oldest":
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
+          const dateAOld = new Date(a.date).getTime();
+          const dateBOld = new Date(b.date).getTime();
+          return (isNaN(dateAOld) ? 0 : dateAOld) - (isNaN(dateBOld) ? 0 : dateBOld);
         case "highest":
           return b.score - a.score;
         case "lowest":
@@ -77,6 +151,7 @@ const HistorySection = ({
       }
     });
 
+
     // Filter by date range
     if (filters.dateRange !== "all-time") {
       const now = new Date();
@@ -84,6 +159,7 @@ const HistorySection = ({
 
       filtered = filtered.filter((item) => {
         const itemDate = new Date(item.date);
+        if (isNaN(itemDate.getTime())) return false; // Skip invalid dates
 
         switch (filters.dateRange) {
           case "today":
@@ -116,32 +192,41 @@ const HistorySection = ({
 
   const filteredHistoryItems = getFilteredHistoryItems();
 
-  // Stats for the summary section
-  const totalQuizzes = historyItems.length;
+  // --- Stats Calculation ---
+  // Use localHistoryItems state instead of prop
+  const totalQuizzes = localHistoryItems.length;
   const averageScore =
-    historyItems.length > 0
+    localHistoryItems.length > 0
       ? Math.round(
-          historyItems.reduce(
+          localHistoryItems.reduce(
             (sum, item) => sum + (item.score / item.totalQuestions) * 100,
             0,
-          ) / historyItems.length,
+          ) / localHistoryItems.length,
         )
       : 0;
-  const totalQuestions = historyItems.reduce(
+  // Use localHistoryItems state instead of prop
+  const totalQuestions = localHistoryItems.reduce(
     (sum, item) => sum + item.totalQuestions,
     0,
   );
 
-  // Calculate average time (assuming time format is MM:SS)
+  // Calculate average time (using formatted MM:SS string)
   const calculateAverageTime = () => {
-    if (historyItems.length === 0) return "00:00";
+    // Use localHistoryItems state instead of prop
+    if (localHistoryItems.length === 0) return "00:00";
 
-    const totalSeconds = historyItems.reduce((sum, item) => {
-      const [minutes, seconds] = item.timeTaken.split(":").map(Number);
-      return sum + (minutes * 60 + seconds);
+    const totalSeconds = localHistoryItems.reduce((sum, item) => {
+      // Parse the formatted MM:SS string back to seconds
+      const timeParts = item.timeTaken.split(":");
+      if (timeParts.length !== 2) return sum; // Skip if format is wrong
+      const minutes = parseInt(timeParts[0], 10);
+      const seconds = parseInt(timeParts[1], 10);
+      if (isNaN(minutes) || isNaN(seconds)) return sum; // Skip if parsing fails
+      return sum + (minutes * 60) + seconds;
     }, 0);
 
-    const avgSeconds = Math.round(totalSeconds / historyItems.length);
+
+    const avgSeconds = Math.round(totalSeconds / localHistoryItems.length);
     const avgMinutes = Math.floor(avgSeconds / 60);
     const remainingSeconds = avgSeconds % 60;
 
@@ -150,180 +235,201 @@ const HistorySection = ({
 
   const averageTime = calculateAverageTime();
 
-  if (isLoading) {
-    return (
-      <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center py-20">
-        <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
-        <p className="text-lg text-muted-foreground">
-          Loading your quiz history...
-        </p>
-      </div>
-    );
-  }
+  // --- Render Logic ---
 
-  if (!user) {
+  // Loading State
+  if (isLoading && !fetchError) { // Only show loading if no error
     return (
-      <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onNavigate("home")}
-              className="rounded-full"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold">Quiz History</h1>
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
+        <main className="flex-grow p-6 flex items-center justify-center">
+          <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center min-h-[400px]">
+            <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
+            <p className="text-lg text-muted-foreground">
+              Loading your quiz history...
+            </p>
           </div>
-        </div>
-
-        <div className="text-center py-16">
-          <p className="text-lg text-muted-foreground mb-4">
-            Please log in to view your quiz history
-          </p>
-          <Button onClick={() => onNavigate("login")}>Log In</Button>
-        </div>
+        </main>
       </div>
     );
   }
 
+
+  // Not Logged In State (handled within the main return now for structure)
+  // if (!user) { ... } // Removed separate return
+
+  // Fetch Error State
+  if (fetchError && !isLoading) { // Show error only if not loading
+     return (
+       <div className="flex flex-col min-h-screen bg-gray-50">
+         <Header />
+         <main className="flex-grow p-6 flex items-center justify-center">
+           <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center min-h-[400px]">
+             <AlertCircle className="h-10 w-10 text-red-500 mb-4" />
+             <p className="text-lg text-red-600 mb-2">Error Loading History</p>
+             <p className="text-muted-foreground text-center mb-4">{fetchError}</p>
+             {/* Provide a way to retry or go home */}
+             <Button onClick={() => window.location.reload()} className="mr-2">Try Again</Button>
+             <Button variant="outline" onClick={() => navigate('/')}>Go Home</Button>
+           </div>
+         </main>
+       </div>
+     );
+   }
+
+  // --- Main Content Render ---
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onNavigate("home")}
-            className="rounded-full"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">Quiz History</h1>
-        </div>
-      </div>
-
-      {historyItems.length === 0 ? (
-        <div className="text-center py-16 border border-dashed rounded-lg">
-          <p className="text-lg text-muted-foreground mb-4">
-            You haven't taken any quizzes yet
-          </p>
-          <Button onClick={() => onNavigate("home")}>
-            Take Your First Quiz
-          </Button>
-        </div>
-      ) : (
-        <>
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
-              <History className="h-6 w-6 text-primary mb-2" />
-              <p className="text-sm text-muted-foreground">Total Quizzes</p>
-              <p className="text-2xl font-bold">{totalQuizzes}</p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
-              <BarChart3 className="h-6 w-6 text-primary mb-2" />
-              <p className="text-sm text-muted-foreground">Average Score</p>
-              <p className="text-2xl font-bold">{averageScore}%</p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
-              <Clock className="h-6 w-6 text-primary mb-2" />
-              <p className="text-sm text-muted-foreground">Average Time</p>
-              <p className="text-2xl font-bold">{averageTime}</p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6 text-primary mb-2"
+    <div className="flex flex-col min-h-screen bg-gray-50"> {/* Add flex container */}
+      <Header /> {/* Add Header component */}
+      <main className="flex-grow p-6"> {/* Add main content area */}
+        <div className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-6 space-y-6">
+          {/* Header within the card */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/")} // Use navigate hook
+                className="rounded-full"
               >
-                <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                <path d="M12 17h.01" />
-              </svg>
-              <p className="text-sm text-muted-foreground">Total Questions</p>
-              <p className="text-2xl font-bold">{totalQuestions}</p>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-2xl font-bold">Quiz History</h1>
             </div>
           </div>
 
-          {/* Filters */}
-          <HistoryFilters onFilterChange={setFilters} />
-
-          {/* Tabs and History List */}
-          <Tabs
-            defaultValue="all"
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="easy">Easy</TabsTrigger>
-              <TabsTrigger value="medium">Medium</TabsTrigger>
-              <TabsTrigger value="hard">Hard</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all" className="mt-0">
-              <HistoryList
-                historyItems={filteredHistoryItems}
-                onSelectQuiz={onSelectQuiz}
-              />
-            </TabsContent>
-            <TabsContent value="easy" className="mt-0">
-              <HistoryList
-                historyItems={filteredHistoryItems}
-                onSelectQuiz={onSelectQuiz}
-              />
-            </TabsContent>
-            <TabsContent value="medium" className="mt-0">
-              <HistoryList
-                historyItems={filteredHistoryItems}
-                onSelectQuiz={onSelectQuiz}
-              />
-            </TabsContent>
-            <TabsContent value="hard" className="mt-0">
-              <HistoryList
-                historyItems={filteredHistoryItems}
-                onSelectQuiz={onSelectQuiz}
-              />
-            </TabsContent>
-          </Tabs>
-
-          {filteredHistoryItems.length === 0 && (
-            <div className="text-center py-8 border border-dashed rounded-lg">
-              <p className="text-muted-foreground">
-                No quiz history matches your filters.
+          {/* Conditional Rendering based on user login status */}
+          {!user ? (
+             <div className="text-center py-16">
+               <p className="text-lg text-muted-foreground mb-4">
+                 Please log in to view your quiz history
+               </p>
+               <Button onClick={() => navigate("/login")}>Log In</Button>
+             </div>
+          ) : localHistoryItems.length === 0 ? (
+            // Empty State (logged in, no history)
+            <div className="text-center py-16 border border-dashed rounded-lg">
+              <p className="text-lg text-muted-foreground mb-4">
+                You haven't taken any quizzes yet
               </p>
-              <Button
-                variant="link"
-                onClick={() => {
-                  setFilters({
-                    search: "",
-                    subject: "all",
-                    sortBy: "newest",
-                    dateRange: "all-time",
-                  });
-                  setActiveTab("all");
-                }}
-              >
-                Clear all filters
+              <Button onClick={() => navigate("/")}>
+                Take Your First Quiz
               </Button>
             </div>
+          ) : (
+            // History Exists State
+            <>
+              {/* Summary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                  <History className="h-6 w-6 text-primary mb-2" />
+                  <p className="text-sm text-muted-foreground">Total Quizzes</p>
+                  <p className="text-2xl font-bold">{totalQuizzes}</p>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                  <BarChart3 className="h-6 w-6 text-primary mb-2" />
+                  <p className="text-sm text-muted-foreground">Average Score</p>
+                  <p className="text-2xl font-bold">{averageScore}%</p>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                  <Clock className="h-6 w-6 text-primary mb-2" />
+                  <p className="text-sm text-muted-foreground">Average Time</p>
+                  <p className="text-2xl font-bold">{averageTime}</p>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6 text-primary mb-2"
+                  >
+                    <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <path d="M12 17h.01" />
+                  </svg>
+                  <p className="text-sm text-muted-foreground">Total Questions</p>
+                  <p className="text-2xl font-bold">{totalQuestions}</p>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <HistoryFilters onFilterChange={setFilters} />
+
+              {/* Tabs and History List */}
+              <Tabs
+                defaultValue="all"
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
+                <TabsList className="grid grid-cols-4 mb-4">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="easy">Easy</TabsTrigger>
+                  <TabsTrigger value="medium">Medium</TabsTrigger>
+                  <TabsTrigger value="hard">Hard</TabsTrigger>
+                </TabsList>
+
+                {/* Pass filtered items and remove onSelectQuiz if not used */}
+                <TabsContent value="all" className="mt-0">
+                  <HistoryList
+                    historyItems={filteredHistoryItems}
+                    // onSelectQuiz={onSelectQuiz} // Remove if not implemented/needed
+                  />
+                </TabsContent>
+                <TabsContent value="easy" className="mt-0">
+                  <HistoryList
+                    historyItems={filteredHistoryItems}
+                    // onSelectQuiz={onSelectQuiz}
+                  />
+                </TabsContent>
+                <TabsContent value="medium" className="mt-0">
+                  <HistoryList
+                    historyItems={filteredHistoryItems}
+                    // onSelectQuiz={onSelectQuiz}
+                  />
+                </TabsContent>
+                <TabsContent value="hard" className="mt-0">
+                  <HistoryList
+                    historyItems={filteredHistoryItems}
+                    // onSelectQuiz={onSelectQuiz}
+                  />
+                </TabsContent>
+              </Tabs>
+
+              {filteredHistoryItems.length === 0 && (
+                <div className="text-center py-8 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground">
+                    No quiz history matches your filters.
+                  </p>
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      setFilters({
+                        search: "",
+                        subject: "all",
+                        sortBy: "newest",
+                        dateRange: "all-time",
+                      });
+                      setActiveTab("all");
+                    }}
+                  >
+                    Clear all filters
+                  </Button>
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </main>
     </div>
   );
 };

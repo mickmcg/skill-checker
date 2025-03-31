@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import {
   Card,
   CardHeader,
@@ -10,55 +11,33 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, Award, BarChart } from "lucide-react";
 
+// Interface for the formatted history item data passed as props
 interface QuizHistoryItem {
   id: string;
-  date: string;
+  date: string; // Formatted date string
   subject: string;
   score: number;
   totalQuestions: number;
-  timeTaken: string;
+  timeTaken: string; // Formatted MM:SS string
   difficulty: "easy" | "medium" | "hard";
 }
 
 interface HistoryListProps {
   historyItems?: QuizHistoryItem[];
-  onSelectQuiz?: (quizId: string) => void;
+  // onSelectQuiz prop is removed
 }
 
 const HistoryList = ({
-  historyItems = [
-    {
-      id: "quiz-1",
-      date: "2023-06-15",
-      subject: "JavaScript Fundamentals",
-      score: 8,
-      totalQuestions: 10,
-      timeTaken: "12:45",
-      difficulty: "medium",
-    },
-    {
-      id: "quiz-2",
-      date: "2023-06-10",
-      subject: "React Hooks",
-      score: 7,
-      totalQuestions: 10,
-      timeTaken: "15:20",
-      difficulty: "hard",
-    },
-    {
-      id: "quiz-3",
-      date: "2023-06-05",
-      subject: "CSS Flexbox",
-      score: 9,
-      totalQuestions: 10,
-      timeTaken: "08:30",
-      difficulty: "easy",
-    },
-  ],
-  onSelectQuiz = () => {},
+  historyItems = [], // Default to empty array
 }: HistoryListProps) => {
-  // Function to format date in a more readable format
+  const navigate = useNavigate(); // Use navigate hook
+
+  // Function to format date (keep existing helper)
   const formatDate = (dateString: string) => {
+    // Check if dateString is valid before creating Date object
+    if (!dateString || isNaN(new Date(dateString).getTime())) {
+      return "Invalid Date";
+    }
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -67,7 +46,8 @@ const HistoryList = ({
     });
   };
 
-  // Function to determine badge color based on difficulty
+
+  // Function to determine badge color (keep existing helper)
   const getDifficultyBadgeVariant = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
@@ -81,8 +61,9 @@ const HistoryList = ({
     }
   };
 
-  // Function to determine score color based on performance
+  // Function to determine score color (keep existing helper)
   const getScoreColor = (score: number, total: number) => {
+    if (total === 0) return "text-gray-500"; // Handle division by zero
     const percentage = (score / total) * 100;
     if (percentage >= 80) return "text-green-500";
     if (percentage >= 60) return "text-yellow-500";
@@ -94,8 +75,7 @@ const HistoryList = ({
       {historyItems.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
-            No quiz history available yet. Complete a quiz to see your results
-            here.
+            No quiz history available yet.
           </p>
         </div>
       ) : (
@@ -103,7 +83,8 @@ const HistoryList = ({
           <Card
             key={item.id}
             className="hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => onSelectQuiz(item.id)}
+            // Update onClick to navigate to the details page
+            onClick={() => navigate(`/history/${item.id}`)}
           >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
@@ -140,7 +121,7 @@ const HistoryList = ({
                     Performance
                   </span>
                   <span className="font-medium">
-                    {Math.round((item.score / item.totalQuestions) * 100)}%
+                    {item.totalQuestions > 0 ? Math.round((item.score / item.totalQuestions) * 100) : 0}%
                   </span>
                 </div>
               </div>

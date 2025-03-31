@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom'; // Import hooks
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 import {
   Card,
   CardContent,
@@ -12,16 +13,16 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { useAuth } from "../context/AuthContext";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Alert, AlertDescription } from "./ui/alert";
+import { Alert, AlertDescription } from './ui/alert';
 
-interface AuthFormsProps {
-  onSuccess?: () => void;
-}
+// Remove AuthFormsProps interface and onSuccess prop
 
-const AuthForms = ({ onSuccess = () => {} }: AuthFormsProps) => {
-  const [activeTab, setActiveTab] = useState("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const AuthForms = () => { // Remove onSuccess prop
+  const navigate = useNavigate(); // Get navigate function
+  const location = useLocation(); // Get location object
+  const [activeTab, setActiveTab] = useState('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,7 +39,9 @@ const AuthForms = ({ onSuccess = () => {} }: AuthFormsProps) => {
       } else {
         await signUp(email, password);
       }
-      onSuccess();
+      // Redirect after successful login/signup
+      const from = location.state?.from?.pathname || '/'; // Get previous path or default to home
+      navigate(from, { replace: true }); // Redirect, replacing login page in history
     } catch (err: any) {
       setError(err.message || "An error occurred");
     } finally {

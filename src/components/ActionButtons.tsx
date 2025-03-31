@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { RefreshCw, Home, History, FileText } from "lucide-react";
+import { RefreshCw, Home, History, FileText, FileSearch } from "lucide-react"; // Added FileSearch
 
 interface ActionButtonsProps {
   onRetry?: () => void;
@@ -68,12 +68,12 @@ const ActionButtons = ({
         </Button>
 
         <Button
-          onClick={handleReturnHome}
+          onClick={handleViewHistory} // Changed handler
           className="flex items-center justify-center gap-2"
-          variant="ghost"
+          variant="secondary" // Changed variant
         >
-          <Home className="h-4 w-4" />
-          Return Home
+          <FileSearch className="h-4 w-4" /> {/* Changed icon */}
+          View Answers {/* Changed text */}
         </Button>
       </div>
     </div>

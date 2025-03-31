@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser, signIn, signOut, signUp, User } from "../lib/auth";
-import { supabase } from "../lib/supabase";
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react'; // Import useMemo
+import { getCurrentUser, signIn, signOut, signUp, User } from '../lib/auth';
+import { supabase } from '../lib/supabase';
 
 type AuthContextType = {
   user: User | null;
@@ -18,18 +18,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check for existing session
+    // Check for existing session only once on mount
     const checkUser = async () => {
       try {
         const currentUser = await getCurrentUser();
-        if (currentUser) {
-          setUser({
-            id: currentUser.id,
-            email: currentUser.email || "",
-            username: currentUser.user_metadata?.username,
-          });
-        } else {
-          setUser(null);
-        }
+        // No need to setUser here, onAuthStateChange will handle it
       } catch (error) {
         console.error("Error checking auth:", error);
         setUser(null);
@@ -38,23 +31,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    checkUser();
+    // checkUser(); // Call checkUser, but let onAuthStateChange handle setting state
 
     // Listen for auth changes
     try {
       const { data } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (session?.user) {
-            setUser({
-              id: session.user.id,
-              email: session.user.email || "",
-              username: session.user.user_metadata?.username,
-            });
-          } else {
-            setUser(null);
-          }
-          setLoading(false);
-        },
+        async (_event, session) => {
+          // Simpler update: directly set user based on session
+          const currentUser = session?.user;
+          setUser(currentUser ? {
+              id: currentUser.id,
+              email: currentUser.email || '',
+              username: currentUser.user_metadata?.username,
+          } : null);
+          setLoading(false); // Set loading false after first auth check
+        }
       );
 
       // Safe cleanup function
@@ -76,16 +67,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return () => {}; // Return empty cleanup function
     }
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once on mount
 
-  const value = {
+  // Memoize the context value
+  const value = useMemo(() => ({
     user,
     loading,
     signIn,
     signUp,
     signOut,
-  };
+  }), [user?.id, loading]); // Dependencies: user ID and loading
 
+  // Render children only when loading is false? Or handle loading in consumers?
+  // For now, pass loading state down.
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

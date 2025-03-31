@@ -94,40 +94,7 @@ const ScoreDisplay = ({
         </div>
       </div>
 
-      <div className="mb-6">
-        <div className="flex justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Score</span>
-          <span className="text-sm font-medium text-gray-700">
-            {score}/{totalQuestions}
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-primary h-2 rounded-full"
-            style={{ width: `${percentage}%` }}
-          ></div>
-        </div>
-      </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <p className="text-sm text-gray-600 mb-1">Time Taken</p>
-          <p className="text-lg font-semibold">{formatTime(timeTaken)}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600 mb-1">Achievement</p>
-          <div
-            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${badge.color}`}
-          >
-            {badge.icon}
-            <span>{badge.text}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="text-center text-sm text-gray-600">
-        <p>Great job! Keep practicing to improve your skills.</p>
-      </div>
     </div>
   );
 };

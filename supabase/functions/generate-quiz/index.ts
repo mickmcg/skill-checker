@@ -1,13 +1,13 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import OpenAI from "https://esm.sh/openai@4.28.0";
-// Define CORS headers directly in this file
+
+// Define CORS headers with specific origin for your Tempo app
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Max-Age": "86400",
-  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Credentials": "true"
 };
 
 console.log(`Function "generate-quiz" up and running!`);
@@ -17,7 +17,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
       headers: corsHeaders,
-      status: 204, // No Content is more appropriate for OPTIONS
+      status: 200,
     });
   }
 
@@ -141,7 +141,8 @@ serve(async (req) => {
       options: q.options.map((option, i) => ({
         id: "a" + (i + 1),
         text: option,
-        isCorrect: option === q.correctAnswer,
+        // Make comparison case-insensitive and trim whitespace
+        isCorrect: option.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase(),
       })),
     }));
 

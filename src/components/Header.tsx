@@ -1,20 +1,29 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "./ui/button";
-import { History, Home, LogIn, Settings, Trophy } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import UserMenu from "./UserMenu";
+import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Button } from './ui/button';
+import { History, Home, LogIn, Settings, Trophy } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import UserMenu from './UserMenu';
 
-interface HeaderProps {
-  activePage?: "home" | "history" | "settings";
-  onViewHistory?: () => void;
-}
+// Remove HeaderProps interface and onViewHistory prop
+// interface HeaderProps {
+//   activePage?: "home" | "history" | "settings";
+//   onViewHistory?: () => void; // Removed
+// }
 
-const Header = ({
-  activePage = "home",
-  onViewHistory = () => {},
-}: HeaderProps) => {
+const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "settings" }) => { // Remove onViewHistory prop
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate(); // Get navigate function
+
+  // Define handler locally
+  const handleHistoryClick = () => {
+    if (!user) {
+      navigate('/login', { state: { from: location } });
+    } else {
+      navigate('/history');
+    }
+  };
 
   return (
     <header className="w-full h-20 bg-background border-b border-border flex items-center justify-between px-6 shadow-sm">
@@ -36,19 +45,20 @@ const Header = ({
 
         {user ? (
           <>
+            {/* Use local handler for History button */}
             <Button
               variant={activePage === "history" ? "default" : "ghost"}
               className="flex items-center gap-2"
-              onClick={onViewHistory}
+              onClick={handleHistoryClick} // Use local handler
             >
               <History className="h-4 w-4" />
               History
             </Button>
 
-            <UserMenu onViewHistory={onViewHistory} />
+            <UserMenu /> {/* Remove onViewHistory prop */}
           </>
         ) : (
-          <Link to="/login">
+          <Link to="/login" state={{ from: location }}> {/* Pass state here */}
             <Button variant="outline" className="flex items-center gap-2">
               <LogIn className="h-4 w-4" />
               Login
