@@ -63,6 +63,11 @@ module.exports = {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        'header-bg': '#02203E', // Added custom header background color
+        'header-button': { // Added for header button styling
+          DEFAULT: 'hsl(var(--header-button-border))', // Use for border color
+          hover: 'hsl(var(--header-button-hover-bg))', // Use for hover background
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

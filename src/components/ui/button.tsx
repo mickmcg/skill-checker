@@ -19,6 +19,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // New variant for header buttons on dark background (forcing transparent bg)
+        headerOutline: "!bg-transparent border border-header-button text-white hover:bg-header-button-hover dark:hover:text-header-bg",
       },
       size: {
         default: "h-9 px-4 py-2",

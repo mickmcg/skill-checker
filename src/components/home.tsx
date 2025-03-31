@@ -72,11 +72,12 @@ const Home = () => {
 
   // The Home component now only renders the subject selection part
   return (
-    // Applied standard wrapper: p-4 space-y-4
-    <div className="min-h-screen bg-background p-4 space-y-4"> {/* Replaced bg-gray-50 with bg-background */}
+    // Removed p-4 from the main wrapper to allow header to touch edges
+    <div className="min-h-screen bg-background space-y-4"> {/* Replaced bg-gray-50 with bg-background */}
       <Header activePage="home" />
       {/* Removed flex-1 from main, space-y handles spacing */}
-      <main>
+      {/* Added padding here to keep content spaced from edges, except header */}
+      <main className="p-4">
         {/* Removed container, mx-auto, px-4, py-8 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

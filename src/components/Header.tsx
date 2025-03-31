@@ -34,17 +34,20 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
   };
 
   return (
-    <header className="w-full h-20 bg-background border-b border-border flex items-center justify-between px-6 shadow-sm">
+    // Applied bg-header-bg, removed border, kept padding for content, set default text to white
+    <header className="w-full h-20 bg-header-bg flex items-center justify-between px-6 shadow-sm text-white">
       <Link to="/" className="flex items-center gap-2">
-        <Trophy className="h-8 w-8 text-primary" />
-        <h1 className="text-2xl font-bold text-foreground">Skill Checker</h1>
+        {/* Changed icon and text color to white */}
+        <Trophy className="h-8 w-8 text-white" />
+        <h1 className="text-2xl font-bold text-white">Skill Checker</h1>
       </Link>
 
       <nav className="flex items-center gap-4">
         <Link to="/">
           <Button
             variant={activePage === "home" ? "default" : "ghost"}
-            className="flex items-center gap-2"
+            // Added text-white styling for ghost variant on dark background
+            className={`flex items-center gap-2 ${activePage !== "home" ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
           >
             <Home className="h-4 w-4" />
             Home
@@ -56,19 +59,22 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
             {/* Use local handler for History button */}
             <Button
               variant={activePage === "history" ? "default" : "ghost"}
-              className="flex items-center gap-2"
+              // Added text-white styling for ghost variant on dark background
+              className={`flex items-center gap-2 ${activePage !== "history" ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
               onClick={handleHistoryClick} // Use local handler
             >
               <History className="h-4 w-4" />
               History
             </Button>
 
-            <UserMenu /> {/* Remove onViewHistory prop */}
+            {/* Assuming UserMenu adapts or needs separate styling */}
+            <UserMenu />
           </>
         ) : (
           <Link to="/login" state={{ from: location }}> {/* Pass state here */}
-            <Button variant="outline" className="flex items-center gap-2">
-              <LogIn className="h-4 w-4" />
+            {/* Reverting to headerOutline variant, adding color="white" prop to icon */}
+            <Button variant="headerOutline" size="default" className="flex gap-2 h-10 px-4 py-2"> {/* Ensure correct size */}
+              <LogIn className="h-4 w-4" color="white" /> {/* Set color prop */}
               Login
             </Button>
           </Link>
@@ -77,12 +83,15 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
         {/* Dark Mode Toggle Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
+            {/* Using new headerOutline variant */}
+            <Button variant="headerOutline" size="icon" className="h-10 w-10 relative"> {/* Ensure correct size */}
+              {/* Restore scale classes, icon should inherit text-white from variant */}
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>
             </Button>
           </DropdownMenuTrigger>
+          {/* Dropdown content uses standard theme colors, no change needed here */}
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setTheme('light')}>
               Light

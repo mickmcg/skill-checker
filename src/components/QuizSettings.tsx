@@ -92,9 +92,10 @@ const QuizSettings = () => { // Remove props from component definition
   };
 
   return (
-    <div className="p-4 space-y-4 bg-background min-h-screen"> {/* Added bg-background and min-h-screen */}
+    // Removed p-4 from outer div, added to inner Card
+    <div className="space-y-4 bg-background min-h-screen"> {/* Added bg-background and min-h-screen */}
       <Header />
-      <Card className="w-full max-w-7xl mx-auto bg-card shadow-lg"> {/* Changed max-w-3xl to max-w-7xl */}
+      <Card className="w-full max-w-7xl mx-auto bg-card shadow-lg p-4"> {/* Changed max-w-3xl to max-w-7xl, added p-4 */}
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center text-foreground"> {/* Use theme color */}
             Quiz Settings

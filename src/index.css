@@ -43,6 +43,10 @@
 
       --warning: 47.9 95.8% 53.1%; /* Amber */
       --warning-foreground: 38.5 92.9% 15.1%;
+
+      /* Header Button Specific Variables - Light Mode */
+      --header-button-border: 215.4 16.3% 56.9%; /* hsl(215.4, 16.3%, 56.9%) - gray-500 */
+      --header-button-hover-bg: 210 40% 98% / 0.1; /* hsla(210, 40%, 98%, 0.1) - white/10 */
     }
 
     .dark {
@@ -86,6 +90,10 @@
 
       --warning: 47.9 95.8% 53.1%; /* Amber (same as light, adjust foreground) */
       --warning-foreground: 48 95.8% 11.2%;
+
+      /* Header Button Specific Variables - Dark Mode */
+      --header-button-border: 210 40% 98%; /* hsl(210, 40%, 98%) - white */
+      --header-button-hover-bg: 210 40% 98%; /* hsl(210, 40%, 98%) - white */
     }
   }
 

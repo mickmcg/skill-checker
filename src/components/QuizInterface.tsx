@@ -270,11 +270,11 @@ const QuizInterface = () => { // Removed default questions from props destructur
 
 
   return (
-    // Applied standard wrapper: p-4 space-y-4
-    <div className="flex flex-col min-h-screen bg-background p-4 space-y-4"> {/* Replaced bg-gray-50 */}
+    // Removed p-4 from outer div, added to inner content div
+    <div className="flex flex-col min-h-screen bg-background space-y-4"> {/* Replaced bg-gray-50 */}
       <Header /> {/* Added Header */}
-      {/* Changed max-w-3xl to max-w-7xl for consistency */}
-      <div className="w-full max-w-7xl mx-auto space-y-6">
+      {/* Changed max-w-3xl to max-w-7xl for consistency, added p-4 */}
+      <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
         <ProgressBar
           currentQuestion={currentQuestionIndex + 1}
           totalQuestions={questions.length}

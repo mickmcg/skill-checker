@@ -105,11 +105,11 @@ const ResultsSummary = () => {
    }
 
   return (
-    // Applied standard wrapper: p-4 space-y-4
-    <div className="bg-background min-h-screen p-4 space-y-4"> {/* Replaced bg-gray-50 */}
+    // Removed p-4 from outer div, added to inner content div
+    <div className="bg-background min-h-screen space-y-4"> {/* Replaced bg-gray-50 */}
       <Header /> {/* Added Header */}
-      {/* Changed max-w-3xl to max-w-7xl for consistency */}
-      <div className="w-full max-w-7xl mx-auto space-y-6">
+      {/* Changed max-w-3xl to max-w-7xl for consistency, added p-4 */}
+      <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
         <div className="text-center"> {/* Removed mb-8, handled by parent space-y */}
           <h1 className="text-3xl font-bold text-foreground mb-2">Quiz Results</h1> {/* Replaced text-gray-900 */}
           <p className="text-muted-foreground"> {/* Replaced text-gray-600 */}

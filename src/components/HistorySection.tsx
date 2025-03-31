@@ -279,12 +279,12 @@ const HistorySection = () => { // Removed props
 
   // --- Main Content Render ---
   return (
-    // Added wrapper div with padding and spacing
-    <div className="p-4 space-y-4 flex flex-col min-h-screen bg-background"> {/* Replaced bg-gray-50 */}
+    // Removed p-4 from outer div, added p-6 to inner content div
+    <div className="space-y-4 flex flex-col min-h-screen bg-background"> {/* Replaced bg-gray-50 */}
       <Header />
       {/* Removed padding from main, handled by wrapper */}
       <main className="flex-grow">
-        {/* Changed max-w-3xl to max-w-7xl for wider content */}
+        {/* Changed max-w-3xl to max-w-7xl for wider content, added p-6 */}
         <div className="w-full max-w-7xl mx-auto bg-card rounded-lg shadow-sm p-6 space-y-6"> {/* Replaced bg-white */}
           {/* Header within the card */}
           <div className="flex justify-between items-center">
