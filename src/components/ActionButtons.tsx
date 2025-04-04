@@ -1,20 +1,20 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { RefreshCw, Home, History, FileText, FileSearch } from "lucide-react"; // Added FileSearch
+import { RefreshCw, Brain, History, ListChecks, FileSearch } from "lucide-react"; // Replaced Home with Brain
 
 interface ActionButtonsProps {
   onRetry?: () => void;
-  onNewQuiz?: () => void;
+  onCheckAnswers?: () => void;
   onViewHistory?: () => void;
-  onReturnHome?: () => void;
+  onNewQuiz?: () => void; // Changed onReturnHome back to onNewQuiz
 }
 
 const ActionButtons = ({
   onRetry = () => {},
-  onNewQuiz = () => {},
+  onCheckAnswers = () => {},
   onViewHistory = () => {},
-  onReturnHome = () => {},
+  onNewQuiz = () => {}, // Changed onReturnHome back to onNewQuiz
 }: ActionButtonsProps) => {
   const navigate = useNavigate();
 
@@ -22,23 +22,20 @@ const ActionButtons = ({
     onRetry();
   };
 
-  const handleNewQuiz = () => {
-    onNewQuiz();
+  const handleCheckAnswers = () => { // Renamed handleNewQuiz to handleCheckAnswers
+    onCheckAnswers();
   };
 
   const handleViewHistory = () => {
     onViewHistory();
   };
 
-  const handleReturnHome = () => {
-    onReturnHome();
+  const handleNewQuiz = () => { // Changed handleReturnHome to handleNewQuiz
+    onNewQuiz(); // Call the onNewQuiz prop
   };
 
   return (
     <div className="w-full bg-card p-6 rounded-lg shadow-sm space-y-4"> {/* Replaced bg-white with bg-card */}
-      <h3 className="text-lg font-medium mb-4 text-foreground"> {/* Added text-foreground */}
-        What would you like to do next?
-      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button
           onClick={handleRetry}
@@ -50,12 +47,12 @@ const ActionButtons = ({
         </Button>
 
         <Button
-          onClick={handleNewQuiz}
+          onClick={handleCheckAnswers}
           className="flex items-center justify-center gap-2"
-          variant="default"
+          variant="outline" // Changed variant from default to outline
         >
-          <FileText className="h-4 w-4" />
-          New Quiz
+          <ListChecks className="h-4 w-4" />
+          Check Answers
         </Button>
 
         <Button
@@ -67,14 +64,14 @@ const ActionButtons = ({
           View History
         </Button>
 
-        {/* Assuming the second "View History" button was intended to be "Return Home" */}
+        {/* Changed Return Home to New Quiz */}
         <Button
-          onClick={handleReturnHome} // Changed handler to onReturnHome
+          onClick={handleNewQuiz}
           className="flex items-center justify-center gap-2"
-          variant="secondary"
+          variant="default" // Changed variant from secondary to default
         >
-          <Home className="h-4 w-4" /> {/* Changed icon to Home */}
-          Return Home {/* Changed text */}
+          <Brain className="h-4 w-4" />
+          New Quiz
         </Button>
       </div>
     </div>

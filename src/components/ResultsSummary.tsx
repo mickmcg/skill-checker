@@ -73,9 +73,22 @@ const ResultsSummary = () => {
     }
   };
 
-  const handleNewQuiz = () => {
-    clearQuizData(); // Clear context
-    navigate('/'); // Navigate to home to select a new subject
+  // Navigate to the history page for this quiz, indicating answer review view
+  const handleCheckAnswers = () => {
+    const destination = savedQuizId ? `/history/${savedQuizId}?view=answers` : '/history';
+    const state = savedQuizId ? { from: location, targetQuizId: savedQuizId, view: 'answers' } : { from: location };
+
+    if (!user) {
+      // If not logged in, redirect to login, passing the intended destination
+      navigate('/login', { state: { ...state, from: destination } });
+    } else if (savedQuizId) {
+      // If logged in and quiz ID exists, navigate to the specific history with view=answers
+      navigate(destination);
+    } else {
+      // Fallback if logged in but ID is missing (e.g., save failed)
+      console.warn('Saved quiz ID not found for answer review, navigating to general history.');
+      navigate('/history');
+    }
   };
 
   const handleViewHistory = () => {
@@ -133,7 +146,7 @@ const ResultsSummary = () => {
   };
 
 
-  const handleReturnHome = () => {
+  const handleNewQuiz = () => { // Renamed handleReturnHome to handleNewQuiz
     clearQuizData();
     navigate('/');
   };
@@ -242,17 +255,7 @@ const ResultsSummary = () => {
                 topicStrengths={subjectStrengths} // Renamed prop
                 topicWeaknesses={subjectWeaknesses} // Renamed prop
               />
-              {/* Add Check Answers Button */}
-              <div className="mt-4 text-center">
-                <Button
-                  variant="default" // Or choose another variant like "secondary" or "outline"
-                  className="flex items-center gap-1 mx-auto" // Center the button
-                  onClick={handleViewHistory} // Reuse existing handler
-                >
-                  <ListChecks className="h-4 w-4" />
-                  Check answers
-                </Button>
-              </div>
+              {/* Removed redundant Check Answers Button from here */}
             </div>
           </Card>
         </div>
@@ -274,9 +277,9 @@ const ResultsSummary = () => {
             {/* Pass handlers */}
             <ActionButtons
               onRetry={handleRetry}
-              onNewQuiz={handleNewQuiz}
+              onCheckAnswers={handleCheckAnswers}
               onViewHistory={handleViewHistory}
-              onReturnHome={handleReturnHome}
+              onNewQuiz={handleNewQuiz} // Changed prop name and handler
             />
           </div>
         </Card>

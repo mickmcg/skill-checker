@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import { History, Home, LogIn, Moon, Sun, Trophy } from 'lucide-react'; // Added Moon, Sun icons
+import { Brain, History, Home, LogIn, Moon, Sun, Trophy } from 'lucide-react'; // Added Moon, Sun, Brain icons
 import { useAuth } from '../context/AuthContext';
 import UserMenu from './UserMenu';
 import { useTheme } from '../context/ThemeContext'; // Import useTheme
@@ -76,8 +76,8 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
             // Added text-white styling for ghost variant on dark background
             className={`flex items-center gap-2 ${activePage !== "home" ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
           >
-            <Home className="h-4 w-4" />
-            Home
+            <Brain className="h-4 w-4" />
+            New Quiz
           </Button>
         </Link>
 

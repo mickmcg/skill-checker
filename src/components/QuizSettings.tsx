@@ -23,8 +23,8 @@ const categoriesByTopic: Record<string, string[]> = {
   databases: ["SQL", "NoSQL", "Performance", "MySQL", "PostgreSQL", "Oracle"],
   networking: ["Protocols", "Topologies", "Security", "Hardware", "General", "Cloud Networking"],
   linux: ["Command Line", "System Admin", "Scripting", "Security", "General", "Kernel"],
-  "cloud-native": ["Containers", "Orchestration", "AWS", "Azure", "GCP", "Kubernetes", "Serverless"],
-  "general-knowledge": ["History", "Geography", "Current Events", "Arts", "Science", "Technology"],
+  "cloud-native": ["Containers", "AWS", "Azure", "GCP", "Kubernetes", "Serverless"],
+  "general-knowledge": ["History", "Geography", "Mathematics", "Arts", "Science", "Technology"],
   // Add more topics and categories as needed
 };
 
