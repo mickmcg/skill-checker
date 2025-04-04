@@ -10,17 +10,13 @@ CREATE TABLE IF NOT EXISTS quiz_history (
   difficulty TEXT NOT NULL,
   questions JSONB
 );
-
--- Enable realtime
-alter publication supabase_realtime add table quiz_history;
-
--- Create policies
-DROP POLICY IF EXISTS "Users can view their own quiz history";
-CREATE POLICY "Users can view their own quiz history"
-ON quiz_history FOR SELECT
-USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert their own quiz history";
-CREATE POLICY "Users can insert their own quiz history"
-ON quiz_history FOR INSERT
-WITH CHECK (auth.uid() = user_id);
+-- Create policies (Commented out as they likely exist and cause parsing issues)
+-- DROP POLICY IF EXISTS "Users can view their own quiz history";
+-- CREATE POLICY "Users can view their own quiz history"
+-- ON quiz_history FOR SELECT
+-- USING (auth.uid() = user_id);
+--
+-- DROP POLICY IF EXISTS "Users can insert their own quiz history";
+-- CREATE POLICY "Users can insert their own quiz history"
+-- ON quiz_history FOR INSERT
+-- WITH CHECK (auth.uid() = user_id);

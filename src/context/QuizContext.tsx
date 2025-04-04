@@ -6,7 +6,8 @@ import { useAuth } from './AuthContext'; // Import auth context hook
 
 // Define the shape of the quiz settings
 export interface QuizSettingsType {
-  subject: string;
+  topic: string; // Renamed from subject
+  category?: string; // Added optional category
   difficulty: 'easy' | 'medium' | 'hard';
   numberOfQuestions: number;
   timeLimit: number;
@@ -103,7 +104,8 @@ export const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
             'Authorization': `Bearer ${accessToken}`
           },
           body: JSON.stringify({
-            topic: settings.subject,
+            topic: settings.topic, // Use topic
+            category: settings.category, // Add category
             numberOfQuestions: settings.numberOfQuestions,
             difficulty: settings.difficulty,
           }),
@@ -167,7 +169,8 @@ export const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
       const quizData: QuizHistoryItem = {
         user_id: user.id,
         date: new Date().toISOString(),
-        subject: quizSettings.subject,
+        topic: quizSettings.topic, // Use topic field
+        category: quizSettings.category ?? null, // Use category field, defaulting to null
         score: score,
         total_questions: questionsCount,
         time_taken: time,

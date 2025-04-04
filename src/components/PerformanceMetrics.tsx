@@ -13,8 +13,8 @@ interface PerformanceMetricsProps {
   correctAnswers?: number;
   totalQuestions?: number;
   averageResponseTime?: string;
-  subjectStrengths?: Array<{ subject: string; score: number }>;
-  subjectWeaknesses?: Array<{ subject: string; score: number }>;
+  topicStrengths?: Array<{ topic: string; score: number }>; // Renamed prop and inner field
+  topicWeaknesses?: Array<{ topic: string; score: number }>; // Renamed prop and inner field
 }
 
 const PerformanceMetrics = ({
@@ -22,13 +22,13 @@ const PerformanceMetrics = ({
   correctAnswers = 8,
   totalQuestions = 10,
   averageResponseTime = "18s",
-  subjectStrengths = [
-    { subject: "History", score: 90 },
-    { subject: "Geography", score: 85 },
+  topicStrengths = [ // Renamed prop and inner field
+    { topic: "History", score: 90 },
+    { topic: "Geography", score: 85 },
   ],
-  subjectWeaknesses = [
-    { subject: "Mathematics", score: 40 },
-    { subject: "Science", score: 55 },
+  topicWeaknesses = [ // Renamed prop and inner field
+    { topic: "Mathematics", score: 40 },
+    { topic: "Science", score: 55 },
   ],
 }: PerformanceMetricsProps) => {
   // Handle division by zero for percentage calculation

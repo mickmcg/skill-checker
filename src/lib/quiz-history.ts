@@ -13,24 +13,14 @@ export type QuizHistoryItem = {
   id?: string;
   user_id: string;
   date: string;
-  subject: string;
+  topic: string; // Renamed from subject
+  category: string | null; // Changed from optional string
   score: number;
   total_questions: number;
   time_taken: number;
   difficulty: "easy" | "medium" | "hard";
   questions?: SavedQuestion[]; // Use the specific type
 };
-
-export async function saveQuizResult(quizData: QuizHistoryItem) {
-  const { data, error } = await supabase
-    .from("quiz_history")
-    .insert(quizData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
 
 export async function getUserQuizHistory(userId: string) {
   const { data, error } = await supabase
@@ -43,11 +33,13 @@ export async function getUserQuizHistory(userId: string) {
   return data;
 }
 
-export async function getQuizDetails(quizId: string) {
+export async function saveQuizResult(quizData: QuizHistoryItem) {
+  // Directly insert quizData, assuming it now has topic and category fields
+  // matching the database columns.
   const { data, error } = await supabase
     .from("quiz_history")
-    .select("*")
-    .eq("id", quizId)
+    .insert(quizData) // Insert the original quizData
+    .select()
     .single();
 
   if (error) throw error;

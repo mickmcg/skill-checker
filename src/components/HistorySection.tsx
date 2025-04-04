@@ -13,7 +13,8 @@ import { supabase } from "../lib/supabase"; // Import supabase client
 interface HistoryItem {
   id: string;
   date: string; // Correct: timestamptz column
-  subject: string;
+  topic: string; // Changed from subject
+  category: string | null; // Added category
   score: number;
   total_questions: number;
   time_taken: number; // Correct: int4 column for seconds
@@ -25,7 +26,8 @@ interface HistoryItem {
 interface FormattedHistoryItem {
   id: string;
   date: string; // Formatted date string
-  subject: string;
+  topic: string; // Direct from DB
+  category: string; // Direct from DB (or empty string if null)
   score: number;
   totalQuestions: number; // Camel case
   timeTaken: string; // Formatted MM:SS string
@@ -47,7 +49,7 @@ const HistorySection = () => { // Removed props
   const [activeTab, setActiveTab] = useState("all");
   const [filters, setFilters] = useState({
     search: "",
-    subject: "all",
+    topic: "all", // Renamed from subject
     sortBy: "newest",
     dateRange: "all-time",
   });
@@ -68,7 +70,8 @@ const HistorySection = () => { // Removed props
         // Correct Supabase query chaining - await the whole chain
         const query = supabase
           .from("quiz_history")
-          .select("*")
+          // Select new topic and category columns
+          .select("id, date, topic, category, score, total_questions, time_taken, difficulty, user_id")
           .eq("user_id", user.id)
           .order("date", { ascending: false }); // Correct column name: 'date'
         const { data, error } = await query; // Await the final query object
@@ -78,16 +81,20 @@ const HistorySection = () => { // Removed props
         }
 
         // Format data for display using correct field names from HistoryItem
-        const formattedData: FormattedHistoryItem[] = data.map((item: HistoryItem) => ({
-          id: item.id,
-          date: new Date(item.date).toLocaleDateString(), // Use item.date
-          subject: item.subject,
-          score: item.score,
-          totalQuestions: item.total_questions,
-          // Format time_taken (seconds) into MM:SS - Use item.time_taken
-          timeTaken: `${Math.floor(item.time_taken / 60).toString().padStart(2, '0')}:${(item.time_taken % 60).toString().padStart(2, '0')}`,
-          difficulty: item.difficulty,
-        }));
+        const formattedData: FormattedHistoryItem[] = data.map((item: HistoryItem) => {
+          // No parsing needed anymore, use direct fields
+          return {
+            id: item.id,
+            date: new Date(item.date).toLocaleDateString(), // Use item.date
+            topic: item.topic, // Use direct topic field
+            category: item.category ?? '', // Use direct category field, default to empty string if null
+            score: item.score,
+            totalQuestions: item.total_questions,
+            // Format time_taken (seconds) into MM:SS - Use item.time_taken
+            timeTaken: `${Math.floor(item.time_taken / 60).toString().padStart(2, '0')}:${(item.time_taken % 60).toString().padStart(2, '0')}`,
+            difficulty: item.difficulty,
+          }; // Added closing brace for the returned object
+        }); // Added closing parenthesis for the map function
 
         setLocalHistoryItems(formattedData);
 
@@ -118,15 +125,17 @@ const HistorySection = () => { // Removed props
     // Filter by search term
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
+      // Filter by topic or category
       filtered = filtered.filter((item) =>
-        item.subject.toLowerCase().includes(searchTerm),
+        item.topic.toLowerCase().includes(searchTerm) ||
+        (item.category && item.category.toLowerCase().includes(searchTerm)) // Check if category exists before searching
       );
     }
 
-    // Filter by subject
-    if (filters.subject !== "all") {
+    // Filter by topic (using the topic field directly)
+    if (filters.topic !== "all") { // Use filters.topic
       filtered = filtered.filter((item) =>
-        item.subject.toLowerCase().includes(filters.subject.toLowerCase()),
+        item.topic.toLowerCase().includes(filters.topic.toLowerCase()), // Use filters.topic
       );
     }
 
@@ -193,29 +202,27 @@ const HistorySection = () => { // Removed props
   const filteredHistoryItems = getFilteredHistoryItems();
 
   // --- Stats Calculation ---
-  // Use localHistoryItems state instead of prop
-  const totalQuizzes = localHistoryItems.length;
+  // Calculate stats based on the *filtered* items
+  const totalQuizzes = filteredHistoryItems.length;
   const averageScore =
-    localHistoryItems.length > 0
+    filteredHistoryItems.length > 0
       ? Math.round(
-          localHistoryItems.reduce(
+          filteredHistoryItems.reduce(
             (sum, item) => sum + (item.score / item.totalQuestions) * 100,
             0,
-          ) / localHistoryItems.length,
+          ) / filteredHistoryItems.length,
         )
       : 0;
-  // Use localHistoryItems state instead of prop
-  const totalQuestions = localHistoryItems.reduce(
+  const totalQuestions = filteredHistoryItems.reduce(
     (sum, item) => sum + item.totalQuestions,
     0,
   );
 
-  // Calculate average time (using formatted MM:SS string)
+  // Calculate average time based on *filtered* items
   const calculateAverageTime = () => {
-    // Use localHistoryItems state instead of prop
-    if (localHistoryItems.length === 0) return "00:00";
+    if (filteredHistoryItems.length === 0) return "00:00";
 
-    const totalSeconds = localHistoryItems.reduce((sum, item) => {
+    const totalSeconds = filteredHistoryItems.reduce((sum, item) => {
       // Parse the formatted MM:SS string back to seconds
       const timeParts = item.timeTaken.split(":");
       if (timeParts.length !== 2) return sum; // Skip if format is wrong
@@ -226,7 +233,7 @@ const HistorySection = () => { // Removed props
     }, 0);
 
 
-    const avgSeconds = Math.round(totalSeconds / localHistoryItems.length);
+    const avgSeconds = Math.round(totalSeconds / filteredHistoryItems.length);
     const avgMinutes = Math.floor(avgSeconds / 60);
     const remainingSeconds = avgSeconds % 60;
 
@@ -418,7 +425,7 @@ const HistorySection = () => { // Removed props
                     onClick={() => {
                       setFilters({
                         search: "",
-                        subject: "all",
+                        topic: "all", // Renamed from subject
                         sortBy: "newest",
                         dateRange: "all-time",
                       });

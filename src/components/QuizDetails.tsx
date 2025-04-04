@@ -44,7 +44,8 @@ interface StoredQuestion {
 interface QuizHistoryRecord {
   id: string;
   date: string; // timestamptz
-  subject: string;
+  topic: string; // Changed from subject
+  category: string | null; // Added category
   score: number;
   total_questions: number;
   time_taken: number; // seconds
@@ -76,7 +77,8 @@ const QuizDetails: React.FC = () => {
         // Explicitly select columns and type the response
         const { data, error }: PostgrestSingleResponse<QuizHistoryRecord> = await supabase
           .from("quiz_history")
-          .select("id, date, subject, score, total_questions, time_taken, difficulty, questions, user_id")
+          // Select new topic and category columns
+          .select("id, date, topic, category, score, total_questions, time_taken, difficulty, questions, user_id")
           .eq("id", quizId)
           .single(); // Fetch a single record
 
@@ -142,14 +144,16 @@ const QuizDetails: React.FC = () => {
          <Header />
          <main className="flex-grow p-6 flex items-center justify-center">
            <p>Quiz data not found.</p>
-         </main>
-       </div>
-     );
-   }
+      </main>
+    </div>
+  );
+}
 
-   const { subject, date, score, total_questions, time_taken, questions } = quizData;
-   // Safely calculate correct/incorrect answers, defaulting to 0 if questions are missing/empty
-   const validQuestions = Array.isArray(questions) ? questions : [];
+// Destructure directly from quizData
+const { topic, category, date, score, total_questions, time_taken, questions } = quizData;
+
+// Safely calculate correct/incorrect answers, defaulting to 0 if questions are missing/empty
+const validQuestions = Array.isArray(questions) ? questions : [];
    const correctAnswers = validQuestions.filter(
      (q) => q && q.userAnswer === q.correctAnswer, // Add check for q existence
    ).length;
@@ -179,18 +183,24 @@ const QuizDetails: React.FC = () => {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-xl">{subject}</CardTitle>
-                  <p className="text-sm text-gray-500">
+                  {/* Display Topic (Category) directly */}
+                  <CardTitle className="text-xl capitalize">
+                    {topic.replace('-', ' ')}
+                    {category && ` (${category})`} {/* Conditionally display category (if not null) */}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground"> {/* Use theme color */}
                     Completed on {new Date(date).toLocaleDateString()}
                   </p>
                 </div>
-                {/* Correct Badge variant and add conditional class */}
+                {/* Correct Badge variant and use theme colors */}
                 <Badge
                   className={cn(
-                      "text-lg px-3 py-1",
-                      scorePercentage >= 70 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      "text-lg px-3 py-1", // Keep size
+                      // Use theme-aware success/destructive colors
+                      scorePercentage >= 60 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
                   )}
-                  variant={scorePercentage >= 70 ? "secondary" : "destructive"} // Use valid variants
+                  // Use appropriate variants based on theme/design system
+                  variant={scorePercentage >= 60 ? "default" : "destructive"} // Adjust variant if needed
                 >
                   {score}/{total_questions} ({scorePercentage.toFixed(0)}%)
                 </Badge>
@@ -199,30 +209,30 @@ const QuizDetails: React.FC = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="flex items-center">
-                  <Clock className="h-5 w-5 mr-2 text-gray-500" />
+                  <Clock className="h-5 w-5 mr-2 text-muted-foreground" /> {/* Use theme color */}
                   <div>
-                    <p className="text-sm text-gray-500">Time Taken</p>
+                    <p className="text-sm text-muted-foreground">Time Taken</p> {/* Use theme color */}
                     <p className="font-medium">{formatTime(time_taken)}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+                  <CheckCircle className="h-5 w-5 mr-2 text-success" /> {/* Use theme color */}
                   <div>
-                    <p className="text-sm text-gray-500">Correct Answers</p>
+                    <p className="text-sm text-muted-foreground">Correct Answers</p> {/* Use theme color */}
                     <p className="font-medium">{correctAnswers}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <XCircle className="h-5 w-5 mr-2 text-red-500" />
+                  <XCircle className="h-5 w-5 mr-2 text-destructive" /> {/* Use theme color */}
                   <div>
-                    <p className="text-sm text-gray-500">Incorrect Answers</p>
+                    <p className="text-sm text-muted-foreground">Incorrect Answers</p> {/* Use theme color */}
                     <p className="font-medium">{incorrectAnswers}</p>
                   </div>
                 </div>
               </div>
 
               <div className="mb-6">
-                <p className="text-sm text-gray-500 mb-2">Performance</p>
+                <p className="text-sm text-muted-foreground mb-2">Performance</p> {/* Use theme color */}
                 <Progress value={scorePercentage} className="h-2" />
               </div>
             </CardContent>

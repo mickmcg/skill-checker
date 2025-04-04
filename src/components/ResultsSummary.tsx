@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import React, { useEffect, useRef } from 'react'; // Import useRef
+import { useNavigate, useLocation } from 'react-router-dom';
+import html2canvas from 'html2canvas'; // Import html2canvas
 import ScoreDisplay from './ScoreDisplay';
 import PerformanceMetrics from './PerformanceMetrics';
 import ActionButtons from './ActionButtons';
 import { Card } from './ui/card';
 import { Separator } from './ui/separator';
-import { Share2, Download, FileSearch, LogIn, AlertCircle } from 'lucide-react'; // Added AlertCircle
+import { Share2, Download, FileSearch, LogIn, AlertCircle, ListChecks } from 'lucide-react'; // Added AlertCircle and ListChecks
 import { Button } from './ui/button';
 import Header from './Header'; // Import Header
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +16,8 @@ import { useQuiz } from '../context/QuizContext'; // Import useQuiz
 
 const ResultsSummary = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Get location
+  const location = useLocation();
+  const resultsRef = useRef<HTMLDivElement>(null); // Ref for the container to capture
   const { user } = useAuth();
   const {
     quizScore,
@@ -40,7 +42,8 @@ const ResultsSummary = () => {
   const score = quizScore ?? 0;
   const questionsCount = totalQuestions ?? 0;
   const timeTaken = timeSpent ?? 0;
-  const subject = quizSettings?.subject ?? 'Unknown Subject';
+  const topic = quizSettings?.topic ?? 'Unknown Topic'; // Use topic field
+  const category = quizSettings?.category ?? 'General'; // Also get category
   const correctAnswers = score; // Assuming score is the count of correct answers
 
   // Placeholder data for metrics - replace with actual calculations if needed
@@ -88,6 +91,48 @@ const ResultsSummary = () => {
     }
   };
 
+  const handleDownload = () => {
+    if (resultsRef.current) {
+      html2canvas(resultsRef.current, {
+        // Optional: Improve quality or handle specific elements
+        scale: 2, // Increase scale for better resolution
+        useCORS: true, // If there are external images/resources
+        backgroundColor: '#1a202c', // Match dark theme background if needed
+      }).then((canvas) => {
+        const link = document.createElement('a');
+        link.download = `skill-checker-results-${topic}-${category}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error("Error generating canvas for download:", err);
+        // Optionally show an error message to the user
+      });
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Skill Checker Quiz Results',
+      text: `I scored ${score}/${questionsCount} on the ${topic.replace('-', ' ')} (${category}) quiz!`,
+      url: window.location.href, // Share the current page URL
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        console.log('Results shared successfully');
+      } catch (err) {
+        console.error('Error sharing results:', err);
+        // Handle errors (e.g., user cancelled share)
+      }
+    } else {
+      console.warn('Web Share API not supported in this browser.');
+      // Fallback: Maybe copy text to clipboard or show a message
+      alert('Sharing is not supported in your browser. You can copy the link manually.');
+    }
+  };
+
+
   const handleReturnHome = () => {
     clearQuizData();
     navigate('/');
@@ -109,12 +154,13 @@ const ResultsSummary = () => {
     <div className="bg-background min-h-screen space-y-4"> {/* Replaced bg-gray-50 */}
       <Header /> {/* Added Header */}
       {/* Changed max-w-3xl to max-w-7xl for consistency, added p-4 */}
-      <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
+      {/* Added ref to this div */}
+      <div ref={resultsRef} className="w-full max-w-7xl mx-auto space-y-6 p-4 bg-background">
         <div className="text-center"> {/* Removed mb-8, handled by parent space-y */}
-          <h1 className="text-3xl font-bold text-foreground mb-2">Quiz Results</h1> {/* Replaced text-gray-900 */}
-          <p className="text-muted-foreground"> {/* Replaced text-gray-600 */}
-          Completed on {currentDate} • {subject}
-        </p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Quiz Results</h1>
+          <p className="text-muted-foreground capitalize">
+            Completed on {currentDate} • {topic.replace('-', ' ')} ({category}) {/* Display topic and category */}
+          </p>
         {!user && (
           <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-md inline-flex items-center gap-2"> {/* Replaced blue colors */}
             <LogIn className="h-4 w-4 text-primary" /> {/* Use primary color */}
@@ -136,11 +182,11 @@ const ResultsSummary = () => {
 
       {/* Action buttons (Share, Download, History) */}
       <div className="flex justify-end mb-6 gap-2">
-        <Button variant="outline" size="sm" className="flex items-center gap-1" disabled> {/* Disable unimplemented */}
+        <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handleShare}> {/* Removed disabled, added onClick */}
           <Share2 className="h-4 w-4" />
           Share
         </Button>
-        <Button variant="outline" size="sm" className="flex items-center gap-1" disabled> {/* Disable unimplemented */}
+        <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handleDownload}> {/* Removed disabled, added onClick */}
           <Download className="h-4 w-4" />
           Download
         </Button>
@@ -159,7 +205,8 @@ const ResultsSummary = () => {
       {/* Removed mb-8, handled by parent space-y */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <Card className="bg-card shadow-sm overflow-hidden"> {/* Replaced bg-white */}
+          {/* Added h-full */}
+          <Card className="bg-card shadow-sm overflow-hidden h-full">
             <div className="p-1 bg-primary/10">
               <h2 className="text-center text-lg font-semibold text-primary">
                 Score Summary
@@ -171,14 +218,15 @@ const ResultsSummary = () => {
                 score={score}
                 totalQuestions={questionsCount}
                 timeTaken={timeTaken}
-                subject={subject}
+                topic={`${topic.replace('-', ' ')} (${category})`} // Renamed prop, pass combined topic/category
               />
             </div>
           </Card>
         </div>
 
         <div className="lg:col-span-2">
-          <Card className="bg-card shadow-sm overflow-hidden"> {/* Replaced bg-white */}
+           {/* Added h-full */}
+          <Card className="bg-card shadow-sm overflow-hidden h-full">
             <div className="p-1 bg-primary/10">
               <h2 className="text-center text-lg font-semibold text-primary">
                 Performance Analysis
@@ -191,9 +239,20 @@ const ResultsSummary = () => {
                 correctAnswers={correctAnswers}
                 totalQuestions={questionsCount}
                 averageResponseTime={averageResponseTime}
-                subjectStrengths={subjectStrengths} // Use placeholder or calculated data
-                subjectWeaknesses={subjectWeaknesses} // Use placeholder or calculated data
+                topicStrengths={subjectStrengths} // Renamed prop
+                topicWeaknesses={subjectWeaknesses} // Renamed prop
               />
+              {/* Add Check Answers Button */}
+              <div className="mt-4 text-center">
+                <Button
+                  variant="default" // Or choose another variant like "secondary" or "outline"
+                  className="flex items-center gap-1 mx-auto" // Center the button
+                  onClick={handleViewHistory} // Reuse existing handler
+                >
+                  <ListChecks className="h-4 w-4" />
+                  Check answers
+                </Button>
+              </div>
             </div>
           </Card>
         </div>

@@ -16,9 +16,10 @@ import { cn } from "@/lib/utils"; // Import cn utility
 interface QuizHistoryItem {
   id: string;
   date: string; // Formatted date string
-  subject: string;
+  topic: string; // Expect parsed topic
+  category: string; // Expect parsed category
   score: number;
-  totalQuestions: number;
+  totalQuestions: number; // Camel case
   timeTaken: string; // Formatted MM:SS string
   difficulty: "easy" | "medium" | "hard";
 }
@@ -86,7 +87,11 @@ const HistoryList = ({
           >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{item.subject}</CardTitle>
+                {/* Display Topic (Category) */}
+                <CardTitle className="text-lg capitalize">
+                  {item.topic.replace('-', ' ')}
+                  {item.category && ` (${item.category})`} {/* Conditionally display category */}
+                </CardTitle>
                 {/* Apply specific classes for each difficulty */}
                 <Badge
                   className={cn(

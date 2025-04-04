@@ -42,7 +42,34 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
         <h1 className="text-2xl font-bold text-white">Skill Checker</h1>
       </Link>
 
-      <nav className="flex items-center gap-4">
+      {/* Dark Mode Toggle Dropdown - Moved Here */}
+      <div className="ml-4"> {/* Wrapper div for spacing */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            {/* Using new headerOutline variant */}
+            <Button variant="headerOutline" size="icon" className="h-10 w-10 relative"> {/* Ensure correct size */}
+            {/* Restore scale classes, icon should inherit text-white from variant */}
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </DropdownMenuTrigger>
+        {/* Dropdown content uses standard theme colors, no change needed here */}
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setTheme('light')}>
+            Light
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('dark')}>
+            Dark
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('system')}>
+            System
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+        </DropdownMenu>
+      </div> {/* Close wrapper div */}
+
+      <nav className="flex items-center gap-4 ml-auto"> {/* Added ml-auto to push nav items right */}
         <Link to="/">
           <Button
             variant={activePage === "home" ? "default" : "ghost"}
@@ -79,31 +106,6 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
             </Button>
           </Link>
         )}
-
-        {/* Dark Mode Toggle Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            {/* Using new headerOutline variant */}
-            <Button variant="headerOutline" size="icon" className="h-10 w-10 relative"> {/* Ensure correct size */}
-              {/* Restore scale classes, icon should inherit text-white from variant */}
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </DropdownMenuTrigger>
-          {/* Dropdown content uses standard theme colors, no change needed here */}
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme('light')}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme('dark')}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme('system')}>
-              System
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </nav>
     </header>
   );

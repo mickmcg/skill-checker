@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // Removed import { getMockQuestions } from "./MockQuizData";
 import Header from './Header';
-import SubjectSelector from './SubjectSelector';
+import TopicSelector from './TopicSelector'; // Renamed import
 import { useAuth } from '../context/AuthContext';
 import { useQuiz, QuizSettingsType } from '../context/QuizContext'; // Import context hook and type
 import { getUserQuizHistory } from '../lib/quiz-history'; // Keep history related imports
@@ -48,10 +48,11 @@ const Home = () => {
     }
   };
 
-  const handleSubjectSelect = (subject: string) => {
-    // Set initial settings with the selected subject and navigate
+  const handleTopicSelect = (topic: string) => { // Renamed handler and parameter
+    // Set initial settings with the selected topic and navigate
     const initialSettings: QuizSettingsType = {
-      subject: subject,
+      topic: topic, // Renamed field
+      // category will be set in QuizSettings
       difficulty: 'medium', // Default difficulty
       numberOfQuestions: 1, // Set default number of questions to 1 here
       timeLimit: 30, // Default time limit
@@ -93,7 +94,7 @@ const Home = () => {
             </h1>
             {/* Use theme-aware text color */}
             <p className="text-xl text-muted-foreground">
-              Test your knowledge with AI-generated quizzes on any subject.
+              Test your knowledge with AI-generated quizzes on IT subjects.
               Select a topic below to get started.
             </p>
             {user && (
@@ -102,7 +103,7 @@ const Home = () => {
               </p>
             )}
           </div>
-          <SubjectSelector onSubjectSelect={handleSubjectSelect} />
+          <TopicSelector onTopicSelect={handleTopicSelect} /> {/* Renamed component and prop */}
         </motion.div>
       </main>
       {/* Removed footer for consistency with other screens */}

@@ -13,7 +13,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 interface HistoryFiltersProps {
   onFilterChange?: (filters: {
     search: string;
-    subject: string;
+    topic: string; // Renamed from subject
     sortBy: string;
     dateRange: string;
   }) => void;
@@ -22,7 +22,7 @@ interface HistoryFiltersProps {
 const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
   const [filters, setFilters] = useState({
     search: "",
-    subject: "all",
+    topic: "all", // Renamed from subject
     sortBy: "newest",
     dateRange: "all-time",
   });
@@ -38,7 +38,7 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
   const handleClearFilters = () => {
     const defaultFilters = {
       search: "",
-      subject: "all",
+      topic: "all", // Renamed from subject
       sortBy: "newest",
       dateRange: "all-time",
     };
@@ -46,8 +46,9 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
     onFilterChange(defaultFilters);
   };
 
-  const subjects = [
-    { value: "all", label: "All Subjects" },
+  // Renamed from subjects
+  const topics = [
+    { value: "all", label: "All Topics" }, // Updated label
     { value: "math", label: "Mathematics" },
     { value: "science", label: "Science" },
     { value: "history", label: "History" },
@@ -93,8 +94,8 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             <SlidersHorizontal className="h-4 w-4" />
             {Object.values(filters).some(
               (value, index) =>
-                index > 0 &&
-                value !== subjects[0].value &&
+                index > 0 && // Skip search
+                value !== topics[0].value && // Check against topics array
                 value !== sortOptions[0].value &&
                 value !== dateRanges[0].value,
             ) && (
@@ -107,18 +108,18 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
         {isFiltersExpanded && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Subject</label> {/* Use theme color */}
+              <label className="text-sm font-medium text-foreground">Topic</label> {/* Changed label */}
               <Select
-                value={filters.subject}
-                onValueChange={(value) => handleFilterChange("subject", value)}
+                value={filters.topic} // Use topic filter state
+                onValueChange={(value) => handleFilterChange("topic", value)} // Use topic key
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select subject" />
+                  <SelectValue placeholder="Select topic" /> {/* Changed placeholder */}
                 </SelectTrigger>
                 <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.value} value={subject.value}>
-                      {subject.label}
+                  {topics.map((topic) => ( // Use topics array
+                    <SelectItem key={topic.value} value={topic.value}>
+                      {topic.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

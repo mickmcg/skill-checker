@@ -6,14 +6,14 @@ interface ScoreDisplayProps {
   score: number;
   totalQuestions: number;
   timeTaken?: number; // in seconds
-  subject?: string;
+  topic?: string; // Renamed from subject
 }
 
 const ScoreDisplay = ({
   score = 7,
   totalQuestions = 10,
   timeTaken = 120,
-  subject = "JavaScript",
+  topic = "JavaScript", // Renamed from subject
 }: ScoreDisplayProps) => {
   // Handle division by zero and calculate percentage
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
@@ -61,7 +61,7 @@ const ScoreDisplay = ({
     <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-md bg-card border border-border"> {/* Replaced bg-white, border-gray-200 */}
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-foreground mb-2">Your Score</h2> {/* Replaced text-gray-800 */}
-        <p className="text-muted-foreground text-sm">{subject} Quiz Results</p> {/* Replaced text-gray-600 */}
+        <p className="text-muted-foreground text-sm">{topic} Quiz Results</p> {/* Used topic */}
       </div>
 
       <div className="flex flex-col items-center mb-6"> {/* Changed to flex-col for badge placement */}
