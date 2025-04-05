@@ -43,20 +43,24 @@ const UserMenu = () => { // Remove onViewHistory prop
 
   return (
     <DropdownMenu>
-      {/* Simplified Trigger for debugging */}
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-full"> {/* Use icon size */}
-          {user ? user.email?.charAt(0).toUpperCase() : '?'} {/* Simple indicator */}
+        {/* Added text-foreground for light mode visibility, kept primary-foreground for dark */}
+        <Button variant="outline" size="icon" className="rounded-full text-foreground dark:text-primary-foreground"> {/* Use icon size */}
+          {/* Use first letter of username or email */}
+          {user ? (user.username || user.email)?.charAt(0).toUpperCase() : '?'}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {/* Content remains the same */}
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.email}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              Account
-            </p>
+            {/* Display username if available, otherwise email */}
+            <p className="text-sm font-medium leading-none">{user?.username || user?.email}</p>
+            {/* Show email as secondary info if username is displayed */}
+            {user?.username && (
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.email}
+              </p>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -65,7 +69,7 @@ const UserMenu = () => { // Remove onViewHistory prop
           <History className="mr-2 h-4 w-4" />
           <span>Quiz History</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" disabled> {/* Disable unimplemented */}
+        <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/settings')}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>

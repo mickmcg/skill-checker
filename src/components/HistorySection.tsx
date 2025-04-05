@@ -57,12 +57,15 @@ const HistorySection = () => { // Removed props
   // --- Data Fetching Effect ---
   useEffect(() => {
     const fetchHistory = async () => {
+      console.log("HistorySection: useEffect triggered. User:", user); // Log user
       if (!user) {
+        console.log("HistorySection: No user found, skipping fetch.");
         setIsLoading(false); // Not logged in, stop loading
         setLocalHistoryItems([]); // Clear any previous items
         return;
       }
 
+      console.log("HistorySection: Starting fetch..."); // Log start
       setIsLoading(true);
       setFetchError(null);
 
@@ -76,8 +79,18 @@ const HistorySection = () => { // Removed props
           .order("date", { ascending: false }); // Correct column name: 'date'
         const { data, error } = await query; // Await the final query object
 
+        console.log("HistorySection: Supabase response - Error:", error); // Log error
+        console.log("HistorySection: Supabase response - Data:", data); // Log data
+
         if (error) {
           throw error;
+        }
+
+        if (!data) {
+          console.log("HistorySection: No data received from Supabase.");
+          setLocalHistoryItems([]); // Ensure empty array if data is null/undefined
+          setIsLoading(false);
+          return; // Exit early
         }
 
         // Format data for display using correct field names from HistoryItem
@@ -96,10 +109,18 @@ const HistorySection = () => { // Removed props
           }; // Added closing brace for the returned object
         }); // Added closing parenthesis for the map function
 
+        console.log("HistorySection: Formatted data:", formattedData); // Log formatted data
+        console.log("HistorySection: Formatted data:", formattedData); // Log formatted data
         setLocalHistoryItems(formattedData);
 
       } catch (err) {
-        console.error("Error fetching quiz history:", err);
+        // More detailed error logging
+        console.error("HistorySection: Error caught during fetch:", err);
+        if (err instanceof Error) {
+          console.error("HistorySection: Error name:", err.name);
+          console.error("HistorySection: Error message:", err.message);
+          console.error("HistorySection: Error stack:", err.stack);
+        }
         const message = err instanceof Error ? err.message : "An unknown error occurred";
         setFetchError(`Failed to load history: ${message}`);
         setLocalHistoryItems([]); // Clear items on error

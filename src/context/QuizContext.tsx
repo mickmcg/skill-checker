@@ -4,17 +4,37 @@ import { supabase } from '../lib/supabase'; // Import Supabase client
 import { saveQuizResult, QuizHistoryItem, SavedQuestion } from '../lib/quiz-history'; // Import saving function and types
 import { useAuth } from './AuthContext'; // Import auth context hook
 
+// --- Centralized Quiz Options ---
+// Define categories for each topic
+export const categoriesByTopic: Record<string, string[]> = {
+  programming: ["Java", "Python", "Node.js", "React", ".NET Core", "Go"],
+  databases: ["SQL", "NoSQL", "Performance", "MySQL", "PostgreSQL", "Oracle"],
+  networking: ["Protocols", "Topologies", "Security", "Hardware", "General", "Cloud Networking"],
+  linux: ["Command Line", "System Admin", "Scripting", "Security", "General", "Kernel"],
+  "cloud-native": ["Containers", "AWS", "Azure", "GCP", "Kubernetes", "Serverless"],
+  "general-knowledge": ["History", "Geography", "Mathematics", "Arts", "Science", "Technology"],
+  // Add more topics and categories as needed
+};
+
+export const availableTopics = Object.keys(categoriesByTopic);
+export const availableDifficulties = ['easy', 'medium', 'hard'] as const; // Use const assertion for stricter type
+
 // Define the shape of the quiz settings
 export interface QuizSettingsType {
   topic: string; // Renamed from subject
   category?: string; // Added optional category
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: typeof availableDifficulties[number]; // Use the defined difficulties type
   numberOfQuestions: number;
   timeLimit: number;
 }
 
 // Define the shape of the context data
 interface QuizContextProps {
+  // Expose the centralized options
+  categoriesByTopic: Record<string, string[]>;
+  availableTopics: string[];
+  availableDifficulties: readonly ('easy' | 'medium' | 'hard')[];
+
   quizSettings: QuizSettingsType | null;
   setQuizSettings: (settings: QuizSettingsType | null) => void;
   quizQuestions: any[]; // Consider defining a stricter type for questions
@@ -220,10 +240,16 @@ export const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
     timeSpent,
     setQuizResults, // Pass memoized function
     savedQuizId, // Expose saved ID
+    // Add centralized options to the value
+    categoriesByTopic,
+    availableTopics,
+    availableDifficulties,
   }), [
     quizSettings, setQuizSettings, quizQuestions, setQuizQuestions,
     isGeneratingQuestions, questionError, generateQuestions, clearQuizData,
-    quizScore, totalQuestions, timeSpent, setQuizResults, savedQuizId // Include savedQuizId
+    quizScore, totalQuestions, timeSpent, setQuizResults, savedQuizId,
+    // Add dependencies for the new values (they are constant, but good practice)
+    categoriesByTopic, availableTopics, availableDifficulties,
   ]); // Include all values/functions in dependency array
 
   return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;

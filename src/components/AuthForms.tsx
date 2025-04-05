@@ -23,6 +23,7 @@ const AuthForms = () => { // Remove onSuccess prop
   const [activeTab, setActiveTab] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState(''); // Add state for username
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,7 +38,8 @@ const AuthForms = () => { // Remove onSuccess prop
       if (activeTab === "login") {
         await signIn(email, password);
       } else {
-        await signUp(email, password);
+        // Pass username to signUp function
+        await signUp(email, password, username);
       }
       // Redirect after successful login/signup
       const from = location.state?.from?.pathname || '/'; // Get previous path or default to home
@@ -128,6 +130,21 @@ const AuthForms = () => { // Remove onSuccess prop
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
+              {/* Add Username Field */}
+              <div className="space-y-2">
+                <label htmlFor="register-username" className="text-sm font-medium">
+                  Username
+                </label>
+                <Input
+                  id="register-username"
+                  type="text"
+                  placeholder="Choose a username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  minLength={3} // Match DB constraint
+                />
+              </div>
               <div className="space-y-2">
                 <label htmlFor="register-email" className="text-sm font-medium">
                   Email

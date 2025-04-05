@@ -12,17 +12,13 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'; // Import DropdownMenu components
 
-// Remove HeaderProps interface and onViewHistory prop
-// interface HeaderProps {
-//   activePage?: "home" | "history" | "settings";
-//   onViewHistory?: () => void; // Removed
-// }
-
-const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "settings" }) => { // Remove onViewHistory prop
+// Removed activePage prop
+const Header = () => {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme(); // Get theme state and setter
   const location = useLocation();
   const navigate = useNavigate();
+  const isActive = (path: string) => location.pathname === path; // Helper for active state
 
   // Define handler locally
   const handleHistoryClick = () => {
@@ -72,9 +68,9 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
       <nav className="flex items-center gap-4 ml-auto"> {/* Added ml-auto to push nav items right */}
         <Link to="/">
           <Button
-            variant={activePage === "home" ? "default" : "ghost"}
+            variant={isActive("/") ? "default" : "ghost"} // Use isActive helper
             // Added text-white styling for ghost variant on dark background
-            className={`flex items-center gap-2 ${activePage !== "home" ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
+            className={`flex items-center gap-2 ${!isActive("/") ? 'text-white hover:bg-white/10 hover:text-white' : ''}`} // Use isActive helper
           >
             <Brain className="h-4 w-4" />
             New Quiz
@@ -85,14 +81,26 @@ const Header = ({ activePage = "home" }: { activePage?: "home" | "history" | "se
           <>
             {/* Use local handler for History button */}
             <Button
-              variant={activePage === "history" ? "default" : "ghost"}
+              variant={location.pathname.startsWith("/history") ? "default" : "ghost"} // Check if path starts with /history
               // Added text-white styling for ghost variant on dark background
-              className={`flex items-center gap-2 ${activePage !== "history" ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
+              className={`flex items-center gap-2 ${!location.pathname.startsWith("/history") ? 'text-white hover:bg-white/10 hover:text-white' : ''}`} // Check if path starts with /history
               onClick={handleHistoryClick} // Use local handler
             >
               <History className="h-4 w-4" />
               History
             </Button>
+
+            {/* Leaderboard Link */}
+            <Link to="/leaderboard">
+              <Button
+                variant={isActive("/leaderboard") ? "default" : "ghost"}
+                // Added text-white styling for ghost variant on dark background
+                className={`flex items-center gap-2 ${!isActive("/leaderboard") ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
+              >
+                <Trophy className="h-4 w-4" />
+                Leaderboard
+              </Button>
+            </Link>
 
             {/* Assuming UserMenu adapts or needs separate styling */}
             <UserMenu />

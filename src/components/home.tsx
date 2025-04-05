@@ -75,7 +75,7 @@ const Home = () => {
   return (
     // Removed p-4 from the main wrapper to allow header to touch edges
     <div className="min-h-screen bg-background space-y-4"> {/* Replaced bg-gray-50 with bg-background */}
-      <Header activePage="home" />
+      <Header /> {/* Removed activePage prop */}
       {/* Removed flex-1 from main, space-y handles spacing */}
       {/* Added padding here to keep content spaced from edges, except header */}
       <main className="p-4">
