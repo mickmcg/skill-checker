@@ -66,11 +66,30 @@ const QuizSettings = () => {
     availableDifficulties: contextDifficulties,
   } = useQuiz();
 
-  // Initialize state using the helper function based on user status
-  const [localSettings, setLocalSettings] = useState<QuizSettingsType>(() => getInitialSettings(user));
+  // Initialize state by merging context settings (especially topic) with defaults
+  const [localSettings, setLocalSettings] = useState<QuizSettingsType>(() => {
+    const defaults = getInitialSettings(user);
+    // Prioritize topic and category from context if they exist and are valid
+    const initialTopic = contextSettings?.topic && categoriesByTopic[contextSettings.topic] ? contextSettings.topic : defaults.topic;
+    const initialCategories = categoriesByTopic[initialTopic] || [];
+    const initialCategory = contextSettings?.category && initialCategories.includes(contextSettings.category) ? contextSettings.category : initialCategories[0] || defaults.category;
+
+    console.log("QuizSettings: Initializing local state. Context Topic:", contextSettings?.topic, "Default Topic:", defaults.topic, "Selected Initial Topic:", initialTopic);
+    console.log("QuizSettings: Initializing local state. Context Category:", contextSettings?.category, "Default Category:", defaults.category, "Selected Initial Category:", initialCategory);
+
+    return {
+      ...defaults, // Start with defaults (num questions, time, difficulty from user or fallback)
+      topic: initialTopic, // Override with topic from context or default
+      category: initialCategory, // Override with category from context or default for the topic
+      // Ensure context settings for number/time/difficulty don't override user defaults if context was stale
+      numberOfQuestions: defaults.numberOfQuestions,
+      timeLimit: defaults.timeLimit,
+      difficulty: defaults.difficulty,
+    };
+  });
   const [isSaving, setIsSaving] = useState(false); // State for save button loading
 
-  // Effect to synchronize state (remains the same)
+  // Effect to synchronize state (remains the same - now primarily for reacting to user login/logout *after* mount if needed)
   useEffect(() => {
     // console.log("QuizSettings: Sync Effect running. Initial Local:", localSettings, "Context:", contextSettings, "User Defaults Loaded:", user?.default_num_questions !== undefined);
     // REMOVED LOGIC THAT OVERWRITES INITIAL STATE WITH contextSettings or user defaults after mount.
