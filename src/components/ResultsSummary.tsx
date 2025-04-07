@@ -210,7 +210,7 @@ const ResultsSummary = () => {
           onClick={handleViewHistory}
         >
           <FileSearch className="h-4 w-4" />
-          {user ? 'View History' : 'Log In'}
+          {user ? 'Check Answers' : 'Log In'}
         </Button>
       </div>
 

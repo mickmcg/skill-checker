@@ -31,11 +31,19 @@ const getInitialSettings = (user: ReturnType<typeof useAuth>['user']): QuizSetti
       ? user.default_difficulty as 'easy' | 'medium' | 'hard'
       : 'medium'; // Fallback difficulty if stored value is invalid or missing
 
-    console.log("QuizSettings: Initializing with USER DEFAULTS");
+    // Ensure timeLimit has a valid fallback if user preference is missing or invalid
+    const userTimeLimit = user.default_time_per_question;
+    const validTimeLimit = typeof userTimeLimit === 'number' && userTimeLimit > 0 ? userTimeLimit : 30; // Fallback to 30 if 0, null, undefined, or invalid
+
+    // Ensure numberOfQuestions has a valid fallback if user preference is missing or invalid
+    const userNumQuestions = user.default_num_questions;
+    const validNumQuestions = typeof userNumQuestions === 'number' && userNumQuestions > 0 ? userNumQuestions : 5; // Fallback to 5 if 0, null, undefined, or invalid
+
+    console.log("QuizSettings: Initializing with USER DEFAULTS (User Time:", userTimeLimit, "Validated Time:", validTimeLimit, "User Qs:", userNumQuestions, "Validated Qs:", validNumQuestions, ")");
     return {
-      numberOfQuestions: user.default_num_questions,
+      numberOfQuestions: validNumQuestions, // Use the validated number of questions
       difficulty: userDifficulty,
-      timeLimit: user.default_time_per_question,
+      timeLimit: validTimeLimit, // Use the validated time limit
       topic: defaultTopic, // Start with default topic/category
       category: defaultCategory,
     };
@@ -353,17 +361,17 @@ const QuizSettings = () => {
             </ul>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
+        <CardFooter className="flex flex-col gap-4 sm:px-0"> {/* Added sm:px-0 to remove horizontal padding */}
           {/* Error Message (remains the same) */}
           {questionError && ( <div className="w-full p-3 text-sm bg-destructive/10 text-destructive rounded-md flex items-center gap-2"> <AlertCircle className="h-4 w-4" /> {questionError} </div> )}
 
           {/* Action Buttons */}
-          <div className="w-full flex flex-col sm:flex-row gap-4">
+          <div className="w-full flex flex-col sm:flex-row gap-4 sm:justify-between items-center"> {/* Removed negative margin */}
             {/* Save Defaults Button (Only if logged in) */}
             {user && updateUserPreferences && (
               <Button
                 onClick={handleSaveDefaults}
-                className="w-full sm:w-auto flex-1 py-3 text-base font-medium"
+                className="w-full sm:w-auto sm:flex-shrink-0 py-3 text-base font-medium" // Added sm:flex-shrink-0
                 variant="outline"
                 disabled={isSaving}
               >
@@ -374,7 +382,7 @@ const QuizSettings = () => {
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" /> Save Defaults
+                    <Save className="mr-2 h-5 w-5" /> {/* Reverted icon size to h-5 w-5 */} Save Defaults
                   </>
                 )}
               </Button>
@@ -383,7 +391,7 @@ const QuizSettings = () => {
             {/* Start Quiz Button */}
             <Button
               onClick={handleStartQuiz}
-              className="w-full flex-1 py-3 text-base font-medium bg-green-500 hover:bg-green-600 text-white" // Adjusted padding/text size
+              className="w-full sm:w-auto flex-grow py-3 text-base font-medium bg-green-500 hover:bg-green-600 text-white" // Kept flex-grow and sm:w-auto
               disabled={isGeneratingQuestions || isSaving} // Disable if saving defaults too
             >
               {isGeneratingQuestions ? (
@@ -394,6 +402,16 @@ const QuizSettings = () => {
               ) : (
                 "Start Quiz"
               )}
+            </Button>
+
+            {/* Cancel Button */}
+            <Button
+              onClick={() => navigate('/')}
+              className="w-full sm:w-auto sm:flex-shrink-0 py-3 text-base font-medium" // Added sm:flex-shrink-0
+              variant="outline"
+              disabled={isGeneratingQuestions || isSaving} // Also disable if generating/saving
+            >
+              Cancel
             </Button>
           </div>
         </CardFooter>

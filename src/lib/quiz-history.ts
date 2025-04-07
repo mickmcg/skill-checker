@@ -36,33 +36,35 @@ export type HistoryFiltersType = {
 const applyHistoryFilters = (
   query: PostgrestFilterBuilder<any, any, any>, // Use a more specific type if schema is generated
   userId: string,
-  filters: HistoryFiltersType
+  filters?: HistoryFiltersType // Make filters optional to handle undefined case
 ): PostgrestFilterBuilder<any, any, any> => {
   query = query.eq("user_id", userId);
 
-  // Difficulty Filter (from activeTab)
-  if (filters.difficulty && filters.difficulty !== "all") {
-    query = query.eq("difficulty", filters.difficulty);
-  }
+  // Only apply filters if the filters object is provided
+  if (filters) {
+    // Difficulty Filter (from activeTab)
+    if (filters.difficulty && filters.difficulty !== "all") {
+      query = query.eq("difficulty", filters.difficulty);
+    }
 
-  // Topic Filter
-  if (filters.topic && filters.topic !== "all") {
-    // Assuming 'topic' in filters is the exact topic name or a substring
-    // Use ilike for case-insensitive partial matching if needed, or eq for exact match
-    query = query.ilike("topic", `%${filters.topic}%`);
-  }
+    // Topic Filter
+    if (filters.topic && filters.topic !== "all") {
+      // Assuming 'topic' in filters is the exact topic name or a substring
+      // Use ilike for case-insensitive partial matching if needed, or eq for exact match
+      query = query.ilike("topic", `%${filters.topic}%`);
+    }
 
-  // Search Filter (Topic or Category)
-  if (filters.search) {
-    const searchTerm = `%${filters.search}%`;
-    // Use 'or' condition to search in both topic and category
-    query = query.or(`topic.ilike.${searchTerm},category.ilike.${searchTerm}`);
-  }
+    // Search Filter (Topic or Category)
+    if (filters.search) {
+      const searchTerm = `%${filters.search}%`;
+      // Use 'or' condition to search in both topic and category
+      query = query.or(`topic.ilike.${searchTerm},category.ilike.${searchTerm}`);
+    }
 
-  // Date Range Filter
-  if (filters.dateRange && filters.dateRange !== "all-time") {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // Date Range Filter
+    if (filters.dateRange && filters.dateRange !== "all-time") {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     let startDate: Date | null = null;
 
     switch (filters.dateRange) {
@@ -86,6 +88,7 @@ const applyHistoryFilters = (
       query = query.gte("date", startDate.toISOString());
     }
   }
+} // End of check for filters object
 
   return query;
 };

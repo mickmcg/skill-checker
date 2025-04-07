@@ -6,7 +6,7 @@ import Header from './Header';
 import TopicSelector from './TopicSelector'; // Renamed import
 import { useAuth } from '../context/AuthContext';
 import { useQuiz, QuizSettingsType } from '../context/QuizContext'; // Import context hook and type
-import { getUserQuizHistory } from '../lib/quiz-history'; // Keep history related imports
+import { getUserQuizHistory, HistoryFiltersType } from '../lib/quiz-history'; // Keep history related imports, add HistoryFiltersType
 import { QuizHistoryItem } from '../lib/quiz-history';
 
 const Home = () => {
@@ -17,6 +17,15 @@ const Home = () => {
   // History state remains local to Home or could be moved to its own context/component
   const [quizHistory, setQuizHistory] = useState<QuizHistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // Define default filters for fetching initial history
+  const defaultFilters: HistoryFiltersType = {
+    search: '',
+    topic: 'all',
+    difficulty: 'all',
+    sortBy: 'newest', // Default sort order
+    dateRange: 'all-time',
+  };
 
   // Clear quiz data when navigating back to home
   useEffect(() => {
@@ -38,8 +47,9 @@ const Home = () => {
     if (!user) return;
     setLoadingHistory(true);
     try {
-      const history = await getUserQuizHistory(user.id);
-      setQuizHistory(history);
+      // Pass default filters and extract data correctly
+      const { data: historyData } = await getUserQuizHistory(user.id, 1, 10, defaultFilters); // Use page 1, size 10 (or adjust as needed) and default filters
+      setQuizHistory(historyData); // Set the data array to state
     } catch (error) {
       console.error('Error fetching quiz history:', error);
       // Handle error display if needed

@@ -52,10 +52,12 @@ const AuthForms = () => { // Remove onSuccess prop
   };
 
   return (
-    <Card className="w-full max-w-7xl mx-auto"> {/* Changed max-w-md to max-w-7xl */}
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">
-          {activeTab === "login" ? "Welcome Back" : "Create Account"}
+    // Add a wrapper div for centering
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+      <Card className="w-full max-w-xl"> {/* Changed max-w-lg to max-w-xl */}
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            {activeTab === "login" ? "Welcome Back" : "Create Account"}
         </CardTitle>
         <CardDescription className="text-center">
           {activeTab === "login"
@@ -191,6 +193,7 @@ const AuthForms = () => { // Remove onSuccess prop
         </TabsContent>
       </Tabs>
     </Card>
+    </div> // Close the wrapper div
   );
 };
 
