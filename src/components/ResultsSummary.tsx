@@ -95,11 +95,8 @@ const ResultsSummary = () => {
     if (!user) {
       // Pass location state when navigating to login
       navigate('/login', { state: { from: location } });
-    } else if (savedQuizId) {
-      navigate(`/history/${savedQuizId}`); // Navigate to specific history if ID exists
     } else {
-      // Fallback if user is logged in but ID is missing (e.g., save failed)
-      console.warn('Saved quiz ID not found, navigating to general history.');
+      // Always navigate to the general history page
       navigate('/history');
     }
   };
