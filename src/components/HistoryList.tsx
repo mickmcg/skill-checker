@@ -113,28 +113,28 @@ const HistoryList = ({
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex flex-col items-center">
                   {/* Apply score color to icon */}
-                  <Award className={`h-5 w-5 mb-1 ${getScoreColorClass(item.score, item.totalQuestions)}`} />
-                  <span className="text-xs text-muted-foreground">Score</span>
+                  <Award className={`h-6 w-6 mb-1.5 ${getScoreColorClass(item.score, item.totalQuestions)}`} />
+                  <span className="text-sm text-muted-foreground">Score</span>
                   {/* Apply score color to text */}
                   <span
-                    className={`font-medium ${getScoreColorClass(item.score, item.totalQuestions)}`}
+                    className={`font-medium text-lg ${getScoreColorClass(item.score, item.totalQuestions)}`}
                   >
                     {item.score}/{item.totalQuestions}
                   </span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <Clock className="h-5 w-5 mb-1 text-primary" />
-                  <span className="text-xs text-muted-foreground">Time</span>
-                  <span className="font-medium">{item.timeTaken}</span>
+                  <Clock className="h-6 w-6 mb-1.5 text-primary" />
+                  <span className="text-sm text-muted-foreground">Time</span>
+                  <span className="font-medium text-lg">{item.timeTaken}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   {/* Apply score color to icon */}
-                  <BarChart className={`h-5 w-5 mb-1 ${getScoreColorClass(item.score, item.totalQuestions)}`} />
-                  <span className="text-xs text-muted-foreground">
+                  <BarChart className={`h-6 w-6 mb-1.5 ${getScoreColorClass(item.score, item.totalQuestions)}`} />
+                  <span className="text-sm text-muted-foreground">
                     Performance
                   </span>
                   {/* Apply score color to text */}
-                  <span className={`font-medium ${getScoreColorClass(item.score, item.totalQuestions)}`}>
+                  <span className={`font-medium text-lg ${getScoreColorClass(item.score, item.totalQuestions)}`}>
                     {item.totalQuestions > 0 ? Math.round((item.score / item.totalQuestions) * 100) : 0}%
                   </span>
                 </div>

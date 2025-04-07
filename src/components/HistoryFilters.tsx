@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; // Keep useState for isFiltersExpanded
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import {
@@ -10,50 +10,54 @@ import {
 } from "./ui/select";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 
-interface HistoryFiltersProps {
-  onFilterChange?: (filters: {
-    search: string;
-    topic: string; // Renamed from subject
-    sortBy: string;
-    dateRange: string;
-  }) => void;
+// Define the structure of the filters object passed from the parent
+interface FilterValues {
+  search: string;
+  topic: string;
+  sortBy: string;
+  dateRange: string;
+  // Note: difficulty is managed by the parent's activeTab, not directly here
 }
 
-const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
-  const [filters, setFilters] = useState({
-    search: "",
-    topic: "all", // Renamed from subject
-    sortBy: "newest",
-    dateRange: "all-time",
-  });
+interface HistoryFiltersProps {
+  currentFilters: FilterValues; // Receive current filters from parent
+  onFilterChange?: (filters: Partial<FilterValues>) => void; // Allow partial updates
+}
+
+const HistoryFilters = ({
+  currentFilters,
+  onFilterChange = () => {},
+}: HistoryFiltersProps) => {
+  // Remove internal state for filters
+  // const [filters, setFilters] = useState({ ... });
 
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
-  const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  // Update handler to call onFilterChange with only the changed value
+  const handleFilterChange = (key: keyof FilterValues, value: string) => {
+    // Call parent's handler with the specific change
+    onFilterChange({ [key]: value });
   };
 
+  // Update clear handler to call onFilterChange with default values for relevant fields
   const handleClearFilters = () => {
-    const defaultFilters = {
+    onFilterChange({
       search: "",
-      topic: "all", // Renamed from subject
+      topic: "all",
       sortBy: "newest",
       dateRange: "all-time",
-    };
-    setFilters(defaultFilters);
-    onFilterChange(defaultFilters);
+    });
   };
 
-  // Renamed from subjects
+  // Use topics from TopicSelector.tsx
   const topics = [
-    { value: "all", label: "All Topics" }, // Updated label
-    { value: "math", label: "Mathematics" },
-    { value: "science", label: "Science" },
-    { value: "history", label: "History" },
-    { value: "language", label: "Language" },
+    { value: "all", label: "All Topics" },
     { value: "programming", label: "Programming" },
+    { value: "databases", label: "Databases" },
+    { value: "networking", label: "Networking" },
+    { value: "linux", label: "Linux" },
+    { value: "cloud-native", label: "Cloud Native" },
+    { value: "general-knowledge", label: "General Knowledge" },
   ];
 
   const sortOptions = [
@@ -80,11 +84,12 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" /> {/* Use theme color */}
             <Input
               placeholder="Search quiz history..."
-              value={filters.search}
+              value={currentFilters.search} // Use prop value
               onChange={(e) => handleFilterChange("search", e.target.value)}
               className="pl-9"
             />
           </div>
+          {/* Correctly wrap the Button element */}
           <Button
             variant="outline"
             size="icon"
@@ -92,10 +97,11 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             className="relative"
           >
             <SlidersHorizontal className="h-4 w-4" />
-            {Object.values(filters).some(
-              (value, index) =>
-                index > 0 && // Skip search
-                value !== topics[0].value && // Check against topics array
+            {/* Check against currentFilters prop */}
+            {Object.entries(currentFilters).some(
+              ([key, value]) =>
+                key !== 'search' && // Skip search
+                value !== topics[0].value && // Check against default topic
                 value !== sortOptions[0].value &&
                 value !== dateRanges[0].value,
             ) && (
@@ -108,10 +114,10 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
         {isFiltersExpanded && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Topic</label> {/* Changed label */}
+              <label className="text-sm font-medium text-foreground">Topic</label>
               <Select
-                value={filters.topic} // Use topic filter state
-                onValueChange={(value) => handleFilterChange("topic", value)} // Use topic key
+                value={currentFilters.topic} // Use prop value
+                onValueChange={(value) => handleFilterChange("topic", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select topic" /> {/* Changed placeholder */}
@@ -127,9 +133,9 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Sort By</label> {/* Use theme color */}
+              <label className="text-sm font-medium text-foreground">Sort By</label>
               <Select
-                value={filters.sortBy}
+                value={currentFilters.sortBy} // Use prop value
                 onValueChange={(value) => handleFilterChange("sortBy", value)}
               >
                 <SelectTrigger>
@@ -146,9 +152,9 @@ const HistoryFilters = ({ onFilterChange = () => {} }: HistoryFiltersProps) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Date Range</label> {/* Use theme color */}
+              <label className="text-sm font-medium text-foreground">Date Range</label>
               <Select
-                value={filters.dateRange}
+                value={currentFilters.dateRange} // Use prop value
                 onValueChange={(value) =>
                   handleFilterChange("dateRange", value)
                 }
