@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Brain, History, Home, LogIn, Moon, Sun, Trophy } from 'lucide-react'; // Added Moon, Sun, Brain icons
+import { Brain, History, Home, LogIn, Menu, Moon, Sun, Trophy } from 'lucide-react'; // Added Menu icon
 import { useAuth } from '../context/AuthContext';
 import UserMenu from './UserMenu';
 import { useTheme } from '../context/ThemeContext'; // Import useTheme
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'; // Import Sheet components
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,12 +66,13 @@ const Header = () => {
         </DropdownMenu>
       </div> {/* Close wrapper div */}
 
-      <nav className="flex items-center gap-4 ml-auto"> {/* Added ml-auto to push nav items right */}
+      {/* Desktop Navigation - Hidden on small screens */}
+      <nav className="hidden md:flex items-center gap-4 ml-auto">
         <Link to="/">
           <Button
-            variant={isActive("/") ? "default" : "ghost"} // Use isActive helper
+            variant={isActive('/') ? 'default' : 'ghost'} // Use isActive helper
             // Added text-white styling for ghost variant on dark background
-            className={`flex items-center gap-2 ${!isActive("/") ? 'text-white hover:bg-white/10 hover:text-white' : ''}`} // Use isActive helper
+            className={`flex items-center gap-2 ${!isActive('/') ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
           >
             <Brain className="h-4 w-4" />
             New Quiz
@@ -81,10 +83,9 @@ const Header = () => {
           <>
             {/* Use local handler for History button */}
             <Button
-              variant={location.pathname.startsWith("/history") ? "default" : "ghost"} // Check if path starts with /history
-              // Added text-white styling for ghost variant on dark background
-              className={`flex items-center gap-2 ${!location.pathname.startsWith("/history") ? 'text-white hover:bg-white/10 hover:text-white' : ''}`} // Check if path starts with /history
-              onClick={handleHistoryClick} // Use local handler
+              variant={location.pathname.startsWith('/history') ? 'default' : 'ghost'} // Check if path starts with /history
+              className={`flex items-center gap-2 ${!location.pathname.startsWith('/history') ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
+              onClick={handleHistoryClick}
             >
               <History className="h-4 w-4" />
               History
@@ -93,9 +94,8 @@ const Header = () => {
             {/* Leaderboard Link */}
             <Link to="/leaderboard">
               <Button
-                variant={isActive("/leaderboard") ? "default" : "ghost"}
-                // Added text-white styling for ghost variant on dark background
-                className={`flex items-center gap-2 ${!isActive("/leaderboard") ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
+                variant={isActive('/leaderboard') ? 'default' : 'ghost'}
+                className={`flex items-center gap-2 ${!isActive('/leaderboard') ? 'text-white hover:bg-white/10 hover:text-white' : ''}`}
               >
                 <Trophy className="h-4 w-4" />
                 Leaderboard
@@ -115,6 +115,58 @@ const Header = () => {
           </Link>
         )}
       </nav>
+
+      {/* Mobile Navigation - Hamburger Menu */}
+      <div className="md:hidden ml-auto">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="headerOutline" size="icon">
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[250px] sm:w-[300px] bg-background text-foreground"> {/* Removed p-6 */}
+            {/* Mobile Nav Links */}
+            <nav className="flex flex-col gap-4 mt-6"> {/* Removed h-full */}
+              {/* Always visible */}
+              <Link to="/" className="flex items-center gap-2 p-2 rounded hover:bg-accent">
+                <Brain className="h-5 w-5" />
+                New Quiz
+              </Link>
+
+              {/* Conditional links based on auth state */}
+              {user ? (
+                <>
+                  {/* Logged-in links */}
+                  <button
+                    onClick={handleHistoryClick}
+                    className="flex items-center gap-2 p-2 rounded hover:bg-accent text-left w-full"
+                  >
+                    <History className="h-5 w-5" />
+                    History
+                  </button>
+                  <Link to="/leaderboard" className="flex items-center gap-2 p-2 rounded hover:bg-accent">
+                    <Trophy className="h-5 w-5" />
+                    Leaderboard
+                  </Link>
+                  {/* Separator and User Menu */}
+                  <div className="border-t pt-4"> {/* Removed mt-auto */}
+                     <UserMenu />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Logged-out link */}
+                  <Link to="/login" state={{ from: location }} className="flex items-center gap-2 p-2 rounded hover:bg-accent">
+                    <LogIn className="h-5 w-5" />
+                    Login
+                  </Link>
+                </>
+              )}
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
     </header>
   );
 };
